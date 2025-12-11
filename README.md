@@ -1,7 +1,7 @@
 # Mastodon Wrapped
 
 <p align="center">
-  <img src="./public/og.jpg" alt="Mastodon Wrapped Banner" width="600">
+  <img src="./public/og.jpg" alt="Mastodon Wrapped Banner">
 </p>
 
 <p align="center">
