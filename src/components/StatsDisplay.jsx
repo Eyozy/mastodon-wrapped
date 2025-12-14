@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { formatNumber, formatDate, stripHtml } from '../utils/dataAnalyzer';
+import { formatNumber, formatDate, stripHtml, emojifyDisplayName } from '../utils/dataAnalyzer';
 import { downloadReportAsImage } from '../utils/imageDownloader';
 import {
   BarChart,
@@ -126,7 +126,15 @@ export default function StatsDisplay({ stats, onReset, lang, t }) {
               className="user-avatar"
             />
             <div className="user-details">
-              <h1 className="user-name">{stats.account.display_name || stats.account.username}</h1>
+              <h1 
+                className="user-name"
+                dangerouslySetInnerHTML={{
+                  __html: emojifyDisplayName(
+                    stats.account.display_name || stats.account.username,
+                    stats.account.emojis
+                  )
+                }}
+              />
               <p className="user-handle">@{stats.account.acct}</p>
             </div>
           </div>

@@ -1,10 +1,13 @@
 .landing-page {
-  min-height: 100vh;
+  height: 100dvh;
+  height: 100vh; /* fallback for older browsers */
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xl);
   position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .landing-content {
@@ -154,17 +157,59 @@
 
 @media (max-width: 768px) {
   .landing-page {
+    height: 100dvh;
+    height: 100vh;
     padding: var(--spacing-md);
+    padding-bottom: 4rem; /* space for footer */
+    overflow: hidden;
+  }
+  
+  .landing-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 100%;
+  }
+  
+  .landing-header {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .landing-header .title {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .landing-header .subtitle {
+    font-size: var(--font-size-base);
   }
   
   .logo {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
+    margin-bottom: var(--spacing-sm);
   }
   
   .logo svg {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .search-form {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .input-helper {
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .quick-instances {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .landing-footer {
+    position: absolute;
+    bottom: 0.75rem;
   }
 }
 

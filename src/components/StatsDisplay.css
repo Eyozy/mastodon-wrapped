@@ -95,6 +95,24 @@
   font-size: var(--font-size-2xl);
   font-weight: 800;
   color: var(--text-primary);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: nowrap;
+}
+
+/* Mastodon custom emojis in display name */
+.user-name img,
+.user-name img.emoji {
+  height: 1.2em;
+  width: auto;
+  max-width: 1.2em;
+  vertical-align: middle;
+  display: inline-block;
+  margin: 0 0.05em;
+  object-fit: contain;
 }
 
 .user-handle {

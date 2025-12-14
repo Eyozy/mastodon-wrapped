@@ -40,6 +40,31 @@ export async function downloadReportAsImage(elementId, filename, onProgress) {
     }
   });
 
+  // Fix user-name emoji display for snapdom capture
+  const userName = element.querySelector('.user-name');
+  const userNameOriginalStyle = userName ? {
+    whiteSpace: userName.style.whiteSpace,
+    display: userName.style.display,
+    flexWrap: userName.style.flexWrap
+  } : null;
+
+  if (userName) {
+    userName.style.whiteSpace = 'nowrap';
+    userName.style.display = 'inline-flex';
+    userName.style.flexWrap = 'nowrap';
+
+    // Also fix emoji images inside user-name
+    const emojiImages = userName.querySelectorAll('img');
+    emojiImages.forEach(img => {
+      img.style.display = 'inline-block';
+      img.style.height = '1.2em';
+      img.style.width = 'auto';
+      img.style.maxWidth = '1.2em';
+      img.style.verticalAlign = 'middle';
+      img.style.margin = '0 0.05em';
+    });
+  }
+
   // Adjust heatmap labels for better spacing
   const weekdayTexts = element.querySelectorAll('.react-calendar-heatmap-weekday-labels text');
   weekdayTexts.forEach((text) => {
@@ -79,6 +104,13 @@ export async function downloadReportAsImage(elementId, filename, onProgress) {
     originalStyles.elements.forEach(({ el, display }) => {
       el.style.display = display || '';
     });
+
+    // Restore user-name styles
+    if (userName && userNameOriginalStyle) {
+      userName.style.whiteSpace = userNameOriginalStyle.whiteSpace || '';
+      userName.style.display = userNameOriginalStyle.display || '';
+      userName.style.flexWrap = userNameOriginalStyle.flexWrap || '';
+    }
 
     // Restore heatmap labels
     originalStyles.weekdayLabels.forEach(({ text, x }) => {

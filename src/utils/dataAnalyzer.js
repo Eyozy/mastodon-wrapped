@@ -304,3 +304,25 @@ export function stripHtml(html) {
     if (!html) return '';
     return html.replace(/<[^>]*>/g, '');
 }
+
+/**
+ * Convert Mastodon custom emoji shortcodes to img tags
+ * @param {string} displayName - The display name that may contain emoji shortcodes like :emoji:
+ * @param {Array} emojis - Array of emoji objects from Mastodon API with { shortcode, url, static_url }
+ * @returns {string} HTML string with emoji shortcodes replaced by img tags
+ */
+export function emojifyDisplayName(displayName, emojis) {
+    if (!displayName) return '';
+    if (!emojis || emojis.length === 0) return displayName;
+
+    let result = displayName;
+
+    for (const emoji of emojis) {
+        const shortcode = `:${emoji.shortcode}:`;
+        const imgTag = `<img src="${emoji.static_url || emoji.url}" alt="${emoji.shortcode}" class="emoji" draggable="false" />`;
+        result = result.split(shortcode).join(imgTag);
+    }
+
+    return result;
+}
+
