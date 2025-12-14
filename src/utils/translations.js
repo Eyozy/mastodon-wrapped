@@ -48,6 +48,7 @@ export const translations = {
         trend_title: "Posting Trend",
         distribution_title: "Content Dist.",
         rhythm_title: "Activity Rhythm",
+        activity_rhythm: "Activity Rhythm",
         heatmap_title: "Activity Calendar",
 
         // Activity Highlights
@@ -130,6 +131,7 @@ export const translations = {
         trend_title: "发布趋势",
         distribution_title: "内容分布",
         rhythm_title: "活跃节奏",
+        activity_rhythm: "活跃节奏",
         heatmap_title: "年度活动日历",
 
         // Activity Highlights
