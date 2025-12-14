@@ -1,85 +1,92 @@
-import { toPng } from 'html-to-image';
+import { snapdom } from '@zumer/snapdom';
+
+// CORS proxy list with fallback
+const CORS_PROXIES = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url='
+];
 
 /**
- * Download the report as an image
- * @param {string} elementId - The ID of the element to capture
- * @param {string} filename - The filename for the downloaded image
- * @param {Function} onProgress - Progress callback
+ * Download the report as an image using snapdom
+ * Uses multiple CORS proxies with fallback
  */
 export async function downloadReportAsImage(elementId, filename, onProgress) {
-  try {
-    const element = document.getElementById(elementId);
-    if (!element) {
-      throw new Error('Report element not found');
+  const element = document.getElementById(elementId);
+  if (!element) {
+    throw new Error('Report element not found');
+  }
+
+  onProgress?.('Preparing capture...');
+
+  // Store original styles for restoration
+  const originalStyles = {
+    weekdayLabels: [],
+    monthLabels: [],
+    elements: []
+  };
+
+  // Hide elements that shouldn't appear in download
+  const elementsToHide = [
+    '.heatmap-hover-text',
+    '.back-button',
+    '.download-button'
+  ];
+
+  elementsToHide.forEach(selector => {
+    const el = element.querySelector(selector);
+    if (el) {
+      originalStyles.elements.push({ el, display: el.style.display });
+      el.style.display = 'none';
     }
+  });
 
-    onProgress && onProgress('Preparing capture...');
+  // Adjust heatmap labels for better spacing
+  const weekdayTexts = element.querySelectorAll('.react-calendar-heatmap-weekday-labels text');
+  weekdayTexts.forEach((text) => {
+    const originalX = text.getAttribute('x');
+    originalStyles.weekdayLabels.push({ text, x: originalX });
+    text.setAttribute('x', (parseFloat(originalX) || 0) - 12);
+  });
 
-    // Manually force style changes to ensuring correct capturing 
-    // especially for SVG elements which html-to-image might struggle with external CSS transforms on
-    const heatmapLabels = document.querySelectorAll('.react-calendar-heatmap-weekday-labels');
-    const originalTransforms = new Map();
+  const monthTexts = element.querySelectorAll('.react-calendar-heatmap-month-labels text');
+  monthTexts.forEach((text) => {
+    const originalY = text.getAttribute('y');
+    originalStyles.monthLabels.push({ text, y: originalY });
+    text.setAttribute('y', (parseFloat(originalY) || 0) - 12);
+  });
 
-    heatmapLabels.forEach((el) => {
-      originalTransforms.set(el, el.style.transform);
-      // Force move left by 30px to create spacing
-      el.style.transform = 'translateX(-30px)';
+  await new Promise(resolve => setTimeout(resolve, 150));
+  onProgress?.('Rendering image...');
+
+  try {
+    // Try each proxy until one works
+    let lastError = null;
+    for (const proxy of CORS_PROXIES) {
+      try {
+        const result = await snapdom(element, { scale: 2, useProxy: proxy });
+        onProgress?.('Downloading...');
+        await result.download({ format: 'png', filename: filename.replace('.png', '') });
+        onProgress?.('Complete');
+        return;
+      } catch (error) {
+        lastError = error;
+        console.warn(`Proxy ${proxy} failed, trying next...`);
+      }
+    }
+    throw lastError || new Error('Download failed');
+  } finally {
+    // Restore all hidden elements
+    originalStyles.elements.forEach(({ el, display }) => {
+      el.style.display = display || '';
     });
 
-    // Wait for any animations and style applications
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Restore heatmap labels
+    originalStyles.weekdayLabels.forEach(({ text, x }) => {
+      if (x != null) text.setAttribute('x', x);
+    });
 
-    onProgress && onProgress('Rendering image...');
-
-    try {
-      // Use html-to-image
-      const dataUrl = await toPng(element, {
-        cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-        filter: (node) => {
-          // Filter out buttons and controls
-          if (node.tagName === 'BUTTON') return false;
-          if (node.classList && (
-            node.classList.contains('back-button') ||
-            node.classList.contains('language-switcher') ||
-            node.classList.contains('back-to-top-btn') ||
-            node.id === 'download-btn'
-          )) {
-            return false;
-          }
-          return true;
-        },
-        style: {
-          padding: '40px',
-          background: 'white',
-          // Force minimum desktop width to ensure consistent layout
-          minWidth: '1000px',
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }
-      });
-
-      onProgress && onProgress('Downloading...');
-
-      const link = document.createElement('a');
-      link.download = filename;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      onProgress && onProgress('Complete');
-
-    } finally {
-      // Restore original styles
-      heatmapLabels.forEach((el) => {
-        el.style.transform = originalTransforms.get(el);
-      });
-    }
-
-  } catch (error) {
-    console.error('Error downloading image:', error);
-    throw error;
+    originalStyles.monthLabels.forEach(({ text, y }) => {
+      if (y != null) text.setAttribute('y', y);
+    });
   }
 }
