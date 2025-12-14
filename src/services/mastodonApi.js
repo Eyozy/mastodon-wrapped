@@ -3,7 +3,8 @@
  * Handles communication with Mastodon instances
  */
 
-// Common Mastodon instances for quick selection
+const FETCH_TIMEOUT = 15000; // 15 seconds
+
 export const POPULAR_INSTANCES = [
   { name: 'mastodon.social', url: 'https://mastodon.social' },
   { name: 'mastodon.online', url: 'https://mastodon.online' },
@@ -13,44 +14,52 @@ export const POPULAR_INSTANCES = [
 ];
 
 /**
+ * Fetch with timeout support
+ */
+async function fetchWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    return response;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/**
  * Parse a Mastodon handle into username and instance
- * @param {string} handle - e.g., "user@mastodon.social" or "@user@mastodon.social"
+ * @param {string} handle - e.g., "user@mastodon.social"
  * @returns {{ username: string, instance: string } | null}
  */
 export function parseHandle(handle) {
-  // Remove leading @ if present
   const cleanHandle = handle.startsWith('@') ? handle.slice(1) : handle;
-
-  // Check if it contains an @ for instance
   const parts = cleanHandle.split('@');
 
   if (parts.length === 2 && parts[0] && parts[1]) {
-    return {
-      username: parts[0],
-      instance: parts[1],
-    };
+    return { username: parts[0], instance: parts[1] };
   }
-
   return null;
 }
 
 /**
  * Look up a user by their account name
- * @param {string} instance - The Mastodon instance URL
- * @param {string} acct - The account name (username@instance or just username for local)
- * @returns {Promise<object>} - The account object
  */
 export async function lookupAccount(instance, acct) {
   const baseUrl = instance.startsWith('http') ? instance : `https://${instance}`;
   const url = `${baseUrl}/api/v1/accounts/lookup?acct=${encodeURIComponent(acct)}`;
 
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url);
 
   if (!response.ok) {
     if (response.status === 404) {
-      throw new Error('用户未找到');
+      throw new Error('User not found');
     }
-    throw new Error(`API 错误: ${response.status}`);
+    throw new Error(`API Error: ${response.status}`);
   }
 
   return response.json();
@@ -58,10 +67,6 @@ export async function lookupAccount(instance, acct) {
 
 /**
  * Get an account's statuses (posts)
- * @param {string} instance - The Mastodon instance URL
- * @param {string} accountId - The account ID
- * @param {object} options - Query options
- * @returns {Promise<object[]>} - Array of status objects
  */
 export async function getAccountStatuses(instance, accountId, options = {}) {
   const baseUrl = instance.startsWith('http') ? instance : `https://${instance}`;
@@ -76,10 +81,10 @@ export async function getAccountStatuses(instance, accountId, options = {}) {
   }
 
   const url = `${baseUrl}/api/v1/accounts/${accountId}/statuses?${params}`;
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url);
 
   if (!response.ok) {
-    throw new Error(`无法获取嘟文: ${response.status}`);
+    throw new Error(`Failed to fetch toots: ${response.status}`);
   }
 
   return response.json();
@@ -87,10 +92,6 @@ export async function getAccountStatuses(instance, accountId, options = {}) {
 
 /**
  * Fetch all statuses for the current calendar year
- * @param {string} instance - The Mastodon instance
- * @param {string} accountId - The account ID
- * @param {function} onProgress - Progress callback (current, total estimate)
- * @returns {Promise<object[]>} - All statuses from the current year
  */
 export async function fetchYearStatuses(instance, accountId, onProgress) {
   const now = new Date();
@@ -102,7 +103,7 @@ export async function fetchYearStatuses(instance, accountId, onProgress) {
   let maxId = null;
   let hasMore = true;
   let fetchCount = 0;
-  const maxFetches = 100; // Increased limit to ensure we cover the full year if active
+  const maxFetches = 100;
 
   while (hasMore && fetchCount < maxFetches) {
     const statuses = await getAccountStatuses(instance, accountId, {
@@ -116,40 +117,28 @@ export async function fetchYearStatuses(instance, accountId, onProgress) {
       break;
     }
 
-    // Filter statuses for the current year
-    // Note: APIs return newest first
     const relevantStatuses = [];
-
     for (const status of statuses) {
       const statusDate = new Date(status.created_at);
-
-      // If status is from next year (future?), skip it (unlikely but safe)
       if (statusDate > endOfYear) continue;
-
-      // If status is from current year, keep it
       if (statusDate >= startOfYear) {
         relevantStatuses.push(status);
       } else {
-        // If we hit a status from previous year, we are done
         hasMore = false;
       }
     }
 
     allStatuses = [...allStatuses, ...relevantStatuses];
-
-    const oldestStatus = statuses[statuses.length - 1];
-    maxId = oldestStatus.id;
-
+    maxId = statuses[statuses.length - 1].id;
     fetchCount++;
 
     if (onProgress) {
       onProgress(allStatuses.length, fetchCount * 40);
     }
 
-    // Optimization: If we found older posts in this batch, stop fetching
     if (!hasMore) break;
 
-    // Small delay to avoid rate limiting
+    // Rate limiting delay
     await new Promise(resolve => setTimeout(resolve, 200));
   }
 
@@ -158,9 +147,6 @@ export async function fetchYearStatuses(instance, accountId, onProgress) {
 
 /**
  * Main function to get user data for the wrapped experience
- * @param {string} handle - User handle like "user@mastodon.social"
- * @param {function} onProgress - Progress callback
- * @returns {Promise<object>} - User data with account and statuses
  */
 export async function getUserData(handle, onProgress, lang = 'en') {
   const parsed = parseHandle(handle);
@@ -174,24 +160,21 @@ export async function getUserData(handle, onProgress, lang = 'en') {
 
   const { username, instance } = parsed;
 
-  // Look up the account
   const lookupMsg = lang === 'zh' ? '正在查找用户...' : 'Looking up user...';
   if (onProgress) onProgress(lookupMsg);
   const account = await lookupAccount(instance, username);
 
-  // Fetch all statuses from the past year
   const fetchingMsg = lang === 'zh' ? '正在获取嘟文...' : 'Fetching toots...';
   if (onProgress) onProgress(fetchingMsg);
   const statuses = await fetchYearStatuses(instance, account.id, (current, total) => {
     const progressMsg = lang === 'zh'
       ? `正在获取嘟文... ${current} 条`
       : `Fetching toots... ${current} toots`;
-    if (onProgress) onProgress(progressMsg);
+    if (onProgress) {
+      onProgress(progressMsg);
+      onProgress(current);
+    }
   });
 
-  return {
-    account,
-    statuses,
-    instance,
-  };
+  return { account, statuses, instance };
 }
