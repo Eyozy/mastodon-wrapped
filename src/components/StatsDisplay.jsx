@@ -133,172 +133,246 @@ export default function StatsDisplay({ stats, onReset, lang, t }) {
           <h2 className="stats-title">{t('report_title', { year: stats.year })}</h2>
         </motion.header>
 
-        {/* Identity Section */}
-        <motion.section className="identity-section" variants={itemVariants}>
-          <div className="identity-card persona-card">
-            <div className="identity-icon"><i className="ri-user-star-line"></i></div>
-            <div className="identity-content">
-              <span className="identity-label">{t('persona_label')}</span>
-              <h3 className="identity-value">{stats.persona.name}</h3>
-              <p className="identity-desc">{stats.persona.desc}</p>
+        {/* Core Stats Grid (3 Columns Desktop) */}
+        <motion.section className="stats-grid-section" variants={itemVariants}>
+          <div className="stats-grid-container">
+            {/* 1. Impact Score / Rank */}
+            <div className="grid-card impact-card-small">
+              <div className="card-icon"><i className="ri-trophy-line"></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('impact_score')}</span>
+                <div className="card-value-row">
+                  <span className="card-value highlight-text">{formatNumber(stats.socialImpactScore)}</span>
+                  <span className="card-subtext">
+                    {stats.socialImpactScore >= 10000 ? 'Top 1%' : 
+                     stats.socialImpactScore >= 5000 ? 'Top 5%' : 
+                     stats.socialImpactScore >= 1000 ? 'Top 15%' : 
+                     stats.socialImpactScore >= 500 ? 'Top 30%' : 
+                     stats.socialImpactScore >= 100 ? 'Top 50%' : 'Growing'}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="identity-card chronotype-card">
-            <div className="identity-icon"><i className="ri-time-line"></i></div>
-            <div className="identity-content">
-              <span className="identity-label">{t('chronotype_label')}</span>
-              <h3 className="identity-value">{stats.chronotype.name}</h3>
-              <p className="identity-desc">{stats.chronotype.desc}</p>
+
+            {/* 2. Chronotype (Night Owl etc) - Requested specifically */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-time-line" style={{color: '#8b5cf6'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('chronotype_label')}</span>
+                <span className="card-value" style={{color: '#8b5cf6', fontSize: '1rem'}}>{stats.chronotype.name}</span>
+              </div>
             </div>
+
+            {/* 3. Persona */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-user-star-line" style={{color: '#f97316'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('persona_label')}</span>
+                <span className="card-value" style={{color: '#f97316', fontSize: '1rem'}}>{stats.persona.name}</span>
+              </div>
+            </div>
+
+            {/* 4. Total Posts */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-quill-pen-line" style={{color: '#3b82f6'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('total_posts')}</span>
+                <span className="card-value" style={{color: '#3b82f6'}}>{formatNumber(stats.totalPosts)}</span>
+              </div>
+            </div>
+
+            {/* 5. Originals */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-edit-line" style={{color: '#0ea5e9'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('original_posts')}</span>
+                <span className="card-value" style={{color: '#0ea5e9'}}>{formatNumber(stats.originalPosts)}</span>
+              </div>
+            </div>
+
+            {/* 6. Likes Received (Stars -> Likes) */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-heart-line" style={{color: '#ec4899'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('favorites_received').replace('Stars', 'Likes')}</span> 
+                {/* Fallback if translation key is generic, usually 'favorites_received' maps to 'Favorites' or 'Likes' depending on locale */}
+                <span className="card-value" style={{color: '#ec4899'}}>{formatNumber(stats.totalFavorites)}</span>
+              </div>
+            </div>
+
+            {/* 7. Boosts Received (Reblogs) */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-repeat-line" style={{color: '#10b981'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('reblogs_received')}</span>
+                <span className="card-value" style={{color: '#10b981'}}>{formatNumber(stats.totalReblogs)}</span>
+              </div>
+            </div>
+
+             {/* 8. Longest Streak */}
+             <div className="grid-card">
+              <div className="card-icon"><i className="ri-fire-line" style={{color: '#f59e0b'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('longest_streak')}</span>
+                <span className="card-value" style={{color: '#f59e0b'}}>{stats.longestStreak} {t('days')}</span>
+              </div>
+            </div>
+
+            {/* 9. Average Likes per Post */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-star-smile-line" style={{color: '#f59e0b'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('avg_favorites')}</span>
+                <span className="card-value" style={{color: '#f59e0b'}}>{stats.avgFavoritesPerPost || 0}</span>
+              </div>
+            </div>
+
+            {/* 10. Most Active Month */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-calendar-line" style={{color: '#8b5cf6'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('most_active_month')}</span>
+                <span className="card-value" style={{color: '#8b5cf6'}}>{stats.mostActiveMonth?.name || '-'}</span>
+              </div>
+            </div>
+
+            {/* 11. Most Active Day */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-calendar-check-line" style={{color: '#06b6d4'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('most_active_day')}</span>
+                <span className="card-value" style={{color: '#06b6d4'}}>{stats.mostActiveDay?.date || '-'}</span>
+              </div>
+            </div>
+
+            {/* 12. Busiest Hour */}
+            <div className="grid-card">
+              <div className="card-icon"><i className="ri-time-line" style={{color: '#f43f5e'}}></i></div>
+              <div className="card-content">
+                <span className="card-label">{t('busiest_hour')}</span>
+                <span className="card-value" style={{color: '#f43f5e'}}>{stats.busiestHour?.hour !== undefined ? `${stats.busiestHour.hour}:00` : '-'}</span>
+              </div>
+            </div>
+            
           </div>
         </motion.section>
 
-        {/* Social Impact Score */}
-        <motion.section className="impact-section" variants={itemVariants}>
-          <div className="impact-card">
-            <div className="impact-header">
-              <i className="ri-trophy-line impact-icon"></i>
-              <span>{t('impact_score')}</span>
-            </div>
-            <div className="impact-score">
-              {formatNumber(stats.socialImpactScore)}
-            </div>
-            <div className="impact-breakdown">
-              <span><i className="ri-repeat-line"></i> {t('impact_detail_reblog')}</span>
-              <span><i className="ri-heart-line"></i> {t('impact_detail_fav')}</span>
-              <span><i className="ri-file-text-line"></i> {t('impact_detail_post')}</span>
-              <span><i className="ri-fire-line"></i> {t('impact_detail_streak')}</span>
-            </div>
-          </div>
-        </motion.section>
-
-        {/* Compact Stats Grid */}
-        <motion.section className="compact-stats-section" variants={itemVariants}>
-          <div className="compact-stats-grid">
-            <div className="mini-stat-card">
-              <span className="mini-label">{t('total_posts')}</span>
-              <span className="mini-value">{formatNumber(stats.totalPosts)}</span>
-            </div>
-            <div className="mini-stat-card">
-              <span className="mini-label">{t('original_posts')}</span>
-              <span className="mini-value">{formatNumber(stats.originalPosts)}</span>
-            </div>
-            <div className="mini-stat-card">
-              <span className="mini-label">{t('favorites_received')}</span>
-              <span className="mini-value">{formatNumber(stats.totalFavorites)}</span>
-            </div>
-            <div className="mini-stat-card">
-              <span className="mini-label">{t('reblogs_received')}</span>
-              <span className="mini-value">{formatNumber(stats.totalReblogs)}</span>
-            </div>
-             <div className="mini-stat-card">
-              <span className="mini-label">{t('longest_streak')}</span>
-              <span className="mini-value">{stats.longestStreak} {t('days')}</span>
-            </div>
-            <div className="mini-stat-card">
-              <span className="mini-label">{t('avg_favorites')}</span>
-              <span className="mini-value">{stats.avgFavoritesPerPost}</span>
-            </div>
-          </div>
-        </motion.section>
-
-        {/* Charts Row 1 */}
-        <div className="charts-row">
-          <motion.section className="chart-section half-width" variants={itemVariants}>
-            <h3 className="section-title"><i className="ri-line-chart-line"></i> {t('trend_title')}</h3>
-            <div className="chart-card">
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={stats.monthlyPosts} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
-                  <XAxis dataKey="name" interval={0} stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      color: '#0f172a',
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-                    }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="count" 
-                    stroke="#8b5cf6" 
-                    strokeWidth={3}
-                    dot={false}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </motion.section>
-
-          <motion.section className="chart-section half-width" variants={itemVariants}>
-            <h3 className="section-title"><i className="ri-pie-chart-line"></i> {t('distribution_title')}</h3>
-            <div className="chart-card">
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={stats.contentDistribution}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={70}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {stats.contentDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '8px' }} />
-                  <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </motion.section>
-        </div>
-
-        {/* Chart Row 2: Activity Rhythm */}
-        <motion.section className="chart-section" variants={itemVariants}>
-          <h3 className="section-title"><i className="ri-pulse-line"></i> {t('rhythm_title')}</h3>
-          <div className="chart-card">
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={stats.hourlyPosts} margin={{ left: -20, right: 15, top: 10, bottom: 0 }}>
-                <XAxis dataKey="hour" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} interval={0} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip
-                  contentStyle={{
-                      background: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      color: '#0f172a',
-                    }}
-                />
-                <Area type="monotone" dataKey="count" stroke="#0ea5e9" fill="#e0f2fe" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-             <div className="activity-highlights">
-              <div className="highlight-item">
-                <span className="highlight-label"><i className="ri-calendar-event-line"></i> {t('most_active_month')}</span>
-                <span className="highlight-value">{stats.mostActiveMonth.name} ({stats.mostActiveMonth.count} {t('toots')})</span>
+        {/* Charts Row: Trend, Activity, Distribution (3 Columns) */}
+        <motion.section className="charts-summary-section" variants={itemVariants}>
+           {/* 1. Monthly Trend (Posts) */}
+           <div className="chart-wrapper">
+              <div className="chart-header-compact">
+                <div className="header-icon-title">
+                  <i className="ri-line-chart-line"></i>
+                  <span className="header-title">{t('trend_title')}</span>
+                </div>
+                <div className="header-stat">
+                  {formatNumber(stats.totalPosts)} <span className="stat-unit">Posts</span>
+                </div>
               </div>
-              <div className="highlight-item">
-                <span className="highlight-label"><i className="ri-sun-line"></i> {t('most_active_day')}</span>
-                <span className="highlight-value">{stats.mostActiveDay ? stats.mostActiveDay.date : '-'} ({stats.mostActiveDay ? stats.mostActiveDay.count : 0} {t('toots')})</span>
+              <div className="trend-mini-chart">
+                <ResponsiveContainer width="100%" height={100}>
+                  <LineChart data={stats.monthlyPosts} margin={{ left: 5, right: 5, top: 5, bottom: 5 }}>
+                    <Line 
+                      type="monotone" 
+                      dataKey="count" 
+                      stroke="#8b5cf6" 
+                      strokeWidth={3} 
+                      dot={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '8px', border:'none', boxShadow:'0 4px 6px -1px rgba(0,0,0,0.1)'}}
+                      labelStyle={{color: '#64748b', marginBottom:'2px'}}
+                      itemStyle={{color: '#8b5cf6', fontWeight: 'bold'}}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-              <div className="highlight-item">
-                <span className="highlight-label"><i className="ri-time-flash-line"></i> {t('busiest_hour')}</span>
-                <span className="highlight-value">{stats.busiestHour.hour}:00 ({stats.busiestHour.count} {t('toots')})</span>
+           </div>
+
+           {/* 2. Activity Rhythm (Hourly) - NEW */}
+           <div className="chart-wrapper">
+              <div className="chart-header-compact">
+                <div className="header-icon-title">
+                  <i className="ri-time-line"></i>
+                  <span className="header-title">{t ? t('activity_rhythm') : 'Activity'}</span>
+                </div>
+                <div className="header-stat">
+                  {stats.busiestHour ? `${stats.busiestHour.label}` : '-'} <span className="stat-unit">Peak</span>
+                </div>
               </div>
-            </div>
-          </div>
+              <div className="trend-mini-chart">
+                <ResponsiveContainer width="100%" height={100}>
+                  <AreaChart data={stats.hourlyPosts} margin={{ left: 0, right: 0, top: 5, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorActivity" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="count" stroke="#0ea5e9" fillOpacity={1} fill="url(#colorActivity)" />
+                    <Tooltip 
+                      contentStyle={{backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '8px', border:'none', boxShadow:'0 4px 6px -1px rgba(0,0,0,0.1)'}}
+                      labelStyle={{color: '#64748b'}}
+                      itemStyle={{color: '#0ea5e9', fontWeight: 'bold'}}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+           </div>
+
+           {/* 3. Content Distribution */}
+           <div className="chart-wrapper">
+              <div className="chart-header-compact">
+                <div className="header-icon-title">
+                  <i className="ri-pie-chart-line"></i>
+                  <span className="header-title">{t('distribution_title')}</span>
+                </div>
+              </div>
+              
+              <div className="distribution-stacked-bar">
+                 {(() => {
+                    // Calculate total for percentages
+                    const total = stats.contentDistribution.reduce((acc, curr) => acc + curr.value, 0) || 1;
+                    
+                    return (
+                      <>
+                        <div className="stacked-bar-container">
+                          {stats.contentDistribution.map((item, idx) => {
+                             const pct = ((item.value / total) * 100).toFixed(1);
+                             return (
+                              <div 
+                                  key={idx} 
+                                  className="stacked-segment" 
+                                  style={{ 
+                                    width: `${pct}%`, 
+                                    backgroundColor: item.color 
+                                  }}
+                              />
+                             );
+                          })}
+                        </div>
+                        <div className="stacked-legend">
+                            {stats.contentDistribution.map((item, idx) => {
+                               const pct = ((item.value / total) * 100).toFixed(0);
+                               return (
+                               <div key={idx} className="legend-item">
+                                  <span className="legend-dot" style={{backgroundColor: item.color}}></span>
+                                  <span className="legend-text">{item.name}: {item.value} ({pct}%)</span>
+                               </div>
+                               );
+                            })}
+                        </div>
+                      </>
+                    );
+                 })()}
+              </div>
+           </div>
         </motion.section>
 
         {/* Calendar Heatmap */}
         <motion.section className="chart-section" variants={itemVariants}>
-          <h3 className="section-title"><i className="ri-calendar-check-line"></i> {t('heatmap_title')}</h3>
-          <div className="chart-card">
+          <div className="chart-card glass-card">
             <ActivityHeatmap
               activityCalendar={stats.activityCalendar}
               year={stats.year}
@@ -306,41 +380,6 @@ export default function StatsDisplay({ stats, onReset, lang, t }) {
             />
           </div>
         </motion.section>
-
-        {/* Top Toot */}
-        {stats.topToot && (
-          <motion.section className="top-toot-section" variants={itemVariants}>
-            <h3 className="section-title"><i className="ri-award-line"></i> {t('top_toot_title')}</h3>
-             <p className="text-xs text-slate-400 mb-8 mt-2 ml-1">
-              {t('top_toot_calc')}
-            </p>
-            <div className="top-toot-card">
-               <div className="quote-icon"><i className="ri-double-quotes-l"></i></div>
-               <p className="top-toot-text">{stripHtml(stats.topToot.content)}</p>
-               <div className="top-toot-stats">
-                 <div className="stat-pill"><i className="ri-heart-fill" style={{color:'#ec4899'}}></i> {stats.topToot.favourites_count}</div>
-                 <div className="stat-pill"><i className="ri-repeat-fill" style={{color:'#8b5cf6'}}></i> {stats.topToot.reblogs_count}</div>
-                 <div className="stat-pill"><i className="ri-message-3-fill" style={{color:'#3b82f6'}}></i> {stats.topToot.replies_count}</div>
-                 <div className="stat-date">{formatDate(stats.topToot.created_at, lang)}</div>
-               </div>
-            </div>
-          </motion.section>
-        )}
-
-        {/* Top Hashtags */}
-        {stats.topHashtags.length > 0 && (
-          <motion.section className="hashtags-section mt-12" variants={itemVariants}>
-            <h3 className="section-title"><i className="ri-hashtag"></i> {t('top_hashtags')}</h3>
-            <div className="hashtags-grid mt-4">
-              {stats.topHashtags.slice(0, 10).map((tag, index) => (
-                <div key={tag.name} className="hashtag-item" style={{ '--index': index }}>
-                  <span className="hashtag-name">#{tag.name}</span>
-                  <span className="hashtag-count">{tag.count}</span>
-                </div>
-              ))}
-            </div>
-          </motion.section>
-        )}
 
         {/* Footer */}
         <motion.footer className="stats-footer" variants={itemVariants}>
