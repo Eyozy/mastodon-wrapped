@@ -11,8 +11,6 @@ export default function LandingPage({
   loadingMessage,
   error: errorProp,
   loadingProgress = 0,
-  loadingSteps = [],
-  currentLoadingStep = -1,
   lang,
   t
 }) {
@@ -180,15 +178,13 @@ export default function LandingPage({
         </p>
       </motion.footer>
 
-      {/* Loading Modal with Progress */}
+      {/* Loading Modal */}
       <LoadingModal
         isOpen={isLoading}
         progress={loadingProgress}
         message={loadingMessage || t('fetching')}
         showPercentage={true}
         showCircularProgress={true}
-        steps={loadingSteps}
-        currentStep={currentLoadingStep}
         t={t}
       />
     </div>
