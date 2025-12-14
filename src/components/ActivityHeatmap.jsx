@@ -49,6 +49,30 @@ export default function ActivityHeatmap({ activityCalendar, year, t }) {
     return 'color-scale-1';
   };
 
+  // Optimize performance to prevent flickering on hover
+  const transformDayElement = React.useCallback((element, value, index) => {
+    const className = getClassForValue(value);
+    let color = '#e2e8f0';
+    let stroke = '#cbd5e1';
+    
+    if (className === 'color-scale-1') { color = '#dbeafe'; stroke = '#bfdbfe'; }
+    if (className === 'color-scale-2') { color = '#93c5fd'; stroke = '#60a5fa'; }
+    if (className === 'color-scale-3') { color = '#3b82f6'; stroke = '#2563eb'; }
+    if (className === 'color-scale-4') { color = '#1d4ed8'; stroke = '#1e40af'; }
+    if (className === 'color-empty') { color = '#e2e8f0'; stroke = '#cbd5e1'; }
+    
+    return React.cloneElement(element, {
+      style: { 
+        fill: color, 
+        stroke: stroke,
+        strokeWidth: 1,
+        rx: 2, 
+        ry: 2,
+        outline: 'none'
+      }
+    });
+  }, []);
+
   return (
     <div className="activity-heatmap-container">
       <CalendarHeatmap
@@ -58,35 +82,26 @@ export default function ActivityHeatmap({ activityCalendar, year, t }) {
         classForValue={getClassForValue}
         tooltipDataAttrs={getTooltipDataAttrs}
         showWeekdayLabels={true}
+        showMonthLabels={true}
         gutterSize={3}
         onMouseOver={(event, value) => setHoveredData(value)}
         onMouseLeave={() => setHoveredData(null)}
-        transformDayElement={(element, value, index) => {
-          const className = getClassForValue(value);
-          let color = '#e2e8f0';
-          let stroke = '#cbd5e1';
-          
-          if (className === 'color-scale-1') { color = '#dbeafe'; stroke = '#bfdbfe'; }
-          if (className === 'color-scale-2') { color = '#93c5fd'; stroke = '#60a5fa'; }
-          if (className === 'color-scale-3') { color = '#3b82f6'; stroke = '#2563eb'; }
-          if (className === 'color-scale-4') { color = '#1d4ed8'; stroke = '#1e40af'; }
-          if (className === 'color-empty') { color = '#e2e8f0'; stroke = '#cbd5e1'; }
-          
-          return React.cloneElement(element, {
-            style: { 
-              fill: color, 
-              stroke: stroke,
-              strokeWidth: 1,
-              rx: 2, 
-              ry: 2,
-              outline: 'none'
-            }
-          });
-        }}
+        transformDayElement={transformDayElement}
       />
       
-      {/* 交互式数据展示 - 替代原生 Tooltip */}
-      <div style={{ height: '24px', textAlign: 'center', marginTop: '10px', marginBottom: '-10px', fontSize: '14px', fontWeight: '500', color: '#475569' }}>
+      {/* 交互式数据展示 - 替代原生 Tooltip - Fixed height to prevent flicker */}
+      <div className="heatmap-hover-text" style={{ 
+        height: '24px', 
+        textAlign: 'center', 
+        marginTop: '8px', 
+        marginBottom: '0px', 
+        fontSize: '13px', 
+        fontWeight: '500', 
+        color: '#475569',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
          {hoveredData && hoveredData.date ? (
             <span>{hoveredData.date}: <span style={{color: '#3b82f6', fontWeight: 'bold'}}>{hoveredData.count}</span> {t ? t('toots') : '条嘟文'}</span>
          ) : (

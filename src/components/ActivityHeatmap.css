@@ -1,18 +1,21 @@
-/* ActivityHeatmap.css - 日历热力图样式 */
+/* ActivityHeatmap.css - Calendar Heatmap Styles */
 
 .activity-heatmap-container {
   width: 100%;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.5);
+  background: transparent;
   border-radius: 12px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  /* Support horizontal scrolling on small screens */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* 热力图主体样式 */
+/* Heatmap Main Styles */
 .react-calendar-heatmap {
   width: 100%;
-  overflow: visible !important; /* Fix month labels being clipped */
+  /* Ensure a minimum width so squares don't get squished too small */
+  min-width: 600px; 
+  overflow: visible !important;
 }
 
 .react-calendar-heatmap text {
@@ -21,52 +24,68 @@
   font-weight: 500;
 }
 
-/* Adjust weekday labels to have spacing from squares */
+/* Weekday labels spacing */
 .react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
-  transform: translateX(-30px) !important;
+  transform: translate(0px, 15px);
+  font-size: 9px;
 }
 
-/* Adjust month labels if needed, ensure they aren't too high */
+/* Month labels - align with first column of each month */
 .react-calendar-heatmap .react-calendar-heatmap-month-labels {
-  transform: translateY(-5px) !important; 
+  font-size: 10px;
+  font-weight: 600;
 }
 
-/* 热力图方块样式 */
+/* Force month labels to left align with the start of the month column */
+.react-calendar-heatmap .react-calendar-heatmap-month-labels text {
+  text-anchor: start !important;
+  dominant-baseline: auto !important;
+}
+
+/* Ensure proper spacing for the heatmap container */
+.react-calendar-heatmap svg {
+  overflow: visible;
+  padding-top: 20px;
+}
+
+/* Heatmap Rectangles */
 .react-calendar-heatmap rect {
   rx: 2;
   ry: 2;
+  /* Add a small stroke to separate squares visually if needed, though usually gutter handles it */
+  shape-rendering: geometricPrecision;
 }
 
-/* 空数据（无活动） */
+/* Empty Data */
 .react-calendar-heatmap .color-empty {
-  fill: #e2e8f0;
-  stroke: #cbd5e1;
-  stroke-width: 1;
+  fill: #f1f5f9;
+  stroke: #e2e8f0;
+  stroke-width: 1px;
 }
 
-/* 活动等级颜色 - 使用蓝色渐变 */
+/* Blue Gradient Scale */
 .react-calendar-heatmap .color-scale-1 {
   fill: #dbeafe; /* Blue 100 */
   stroke: #bfdbfe;
-  stroke-width: 1;
+  stroke-width: 1px;
 }
 
 .react-calendar-heatmap .color-scale-2 {
   fill: #93c5fd; /* Blue 300 */
   stroke: #60a5fa;
-  stroke-width: 1;
+  stroke-width: 1px;
 }
 
 .react-calendar-heatmap .color-scale-3 {
   fill: #3b82f6; /* Blue 500 */
   stroke: #2563eb;
-  stroke-width: 1;
+  stroke-width: 1px;
 }
 
 .react-calendar-heatmap .color-scale-4 {
   fill: #1d4ed8; /* Blue 700 */
   stroke: #1e40af;
-  stroke-width: 1;
+  stroke-width: 1px;
 }
 
 .react-calendar-heatmap .color-empty:hover,
@@ -79,25 +98,28 @@
   stroke-width: 1px;
 }
 
-/* 悬停效果 */
+/* Hover Effect */
 .react-calendar-heatmap rect:hover {
   stroke: #0f172a;
-  stroke-width: 2;
-  filter: brightness(1.1);
+  stroke-width: 2px;
+  filter: brightness(0.95);
   cursor: pointer;
-  transform: scale(1.05);
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  z-index: 10;
 }
 
-/* 图例样式 - 修正为使用 background-color */
+/* Legend Styles */
 .heatmap-legend {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(226, 232, 240, 0.6);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(226, 232, 240, 0.4);
+  /* Ensure legend stays sticky or visible if needed, but simple flex is fine */
+  position: sticky;
+  left: 0;
 }
 
 .legend-label {
@@ -132,14 +154,89 @@
   border-width: 2px;
 }
 
-/* 响应式设计 */
+/* Responsive Design */
 @media (max-width: 768px) {
   .activity-heatmap-container {
-    padding: 0.75rem;
+    padding: 0.5rem;
+    overflow-x: visible; /* 移除滚动条 */
   }
 
+  /* Reduce min-width to fit tablet screens without scrolling */
+  .react-calendar-heatmap {
+    min-width: 100%; /* 适应容器宽度 */
+  }
+
+  /* Hide both weekday and month labels on tablets and below */
+  .react-calendar-heatmap .react-calendar-heatmap-weekday-labels text,
+  .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
+    display: none;
+  }
+
+  /* Reduce SVG padding since labels are hidden */
+  .react-calendar-heatmap svg {
+    padding-top: 10px;
+  }
+
+  /* Adjust text sizes */
   .react-calendar-heatmap text {
-    font-size: 8px;
+    font-size: 9px;
+  }
+
+  .legend-label {
+    font-size: 11px;
+  }
+
+  .legend-box {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Hide hover text on mobile */
+@media (max-width: 768px) {
+  .heatmap-hover-text {
+    display: none !important;
+  }
+}
+
+/* 下载模式样式 - 强制显示标签并确保正确间距 */
+.download-mode .react-calendar-heatmap .react-calendar-heatmap-weekday-labels text,
+.download-mode .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
+  display: block !important;
+}
+
+/* 下载模式：大幅增加热力图标签与方块的间距 */
+.download-mode .react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
+  transform: translate(-20px, 15px) !important; /* 星期标签向左移动20px */
+}
+
+.download-mode .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
+  transform: translateY(-25px) !important; /* 月份标签向上移动25px */
+}
+
+.download-mode .react-calendar-heatmap svg {
+  padding-top: 45px !important; /* 增加顶部空间 */
+}
+
+/* 下载模式：隐藏悬停文字 */
+.download-mode .heatmap-hover-text {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  .activity-heatmap-container {
+    padding: 0.25rem;
+  }
+
+  /* Hide both month and weekday labels on very small screens */
+  .react-calendar-heatmap .react-calendar-heatmap-weekday-labels text,
+  .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
+    display: none;
+  }
+
+  /* Reduce SVG padding */
+  .react-calendar-heatmap svg {
+    padding-top: 10px;
   }
 
   .legend-label {
@@ -147,7 +244,12 @@
   }
 
   .legend-box {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Smaller minimum width for tiny screens */
+  .react-calendar-heatmap {
+    min-width: 320px;
   }
 }

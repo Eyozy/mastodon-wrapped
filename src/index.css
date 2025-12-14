@@ -34,13 +34,13 @@
   --text-muted: var(--color-muted);
   
   /* Spacing */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-  --spacing-3xl: 4rem;
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.75rem;   /* 12px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
   
   /* Border Radius */
   --radius-sm: 0.25rem;
@@ -60,18 +60,18 @@
   --gradient-card: #ffffff;
   --gradient-glow: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
 
-  /* Typography */
+  /* Typography - Responsive with clamp() */
   --font-family: var(--font-body);
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 2rem;
-  --font-size-4xl: 2.5rem;
-  --font-size-5xl: 3rem;
-  --font-size-6xl: 3.75rem;
+  --font-size-xs: clamp(0.7rem, 0.65rem + 0.25vw, 0.75rem);
+  --font-size-sm: clamp(0.8rem, 0.75rem + 0.25vw, 0.875rem);
+  --font-size-base: clamp(0.9rem, 0.85rem + 0.3vw, 1rem);
+  --font-size-lg: clamp(1rem, 0.95rem + 0.35vw, 1.125rem);
+  --font-size-xl: clamp(1.1rem, 1rem + 0.5vw, 1.25rem);
+  --font-size-2xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+  --font-size-3xl: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+  --font-size-4xl: clamp(1.75rem, 1.5rem + 1.75vw, 2.5rem);
+  --font-size-5xl: clamp(2rem, 1.75rem + 2vw, 3rem);
+  --font-size-6xl: clamp(2.5rem, 2rem + 2.5vw, 3.75rem);
   
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -112,7 +112,7 @@ h1, h2, h3, h4, h5, h6, .font-display {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
