@@ -20,20 +20,6 @@ Mastodon Wrapped is a web application that generates personalized annual reports
 - **Persona Classification**: Discover if you're a Broadcaster, Curator, Socialite, or Balancer
 - **Chronotype Analysis**: Find out if you're a Night Owl, Early Bird, or Slacker
 - **Activity Calendar**: Interactive heatmap showing your posting patterns
-- **Popular Hashtags**: Find your most-used tags
-
-### 🎨 Beautiful Visualizations
-- Interactive charts built with Recharts
-- Activity heatmaps with react-calendar-heatmap
-- Smooth animations with Framer Motion
-- Responsive design for all devices
-- Modern, clean interface
-
-### 💾 Export & Share
-- **Download as Image**: Save your report as a high-quality PNG (2x scale)
-- **Clean Export**: Buttons hidden in downloaded images
-- **CORS Proxy Support**: Cross-origin images handled automatically
-- **Local Processing**: All data processed locally in your browser
 
 ### 🔒 Privacy-First
 - **No Login Required**: Simply enter your Mastodon handle
@@ -71,38 +57,6 @@ Mastodon Wrapped is a web application that generates personalized annual reports
 
 4. **Open your browser**
    Navigate to `http://localhost:5173`
-
-## 📱 Usage
-
-1. **Enter Your Mastodon Handle**
-   - Format: `username@instance.social`
-   - Example: `Gargron@mastodon.social`
-
-2. **Wait for Analysis**
-   - We fetch your public posts from the current year
-   - Progress bar shows fetch status
-
-3. **Explore Your Report**
-   - View your statistics and insights
-   - See your activity calendar heatmap
-   - Discover your persona and chronotype
-
-4. **Share Your Results**
-   - Click download to save as PNG image
-   - Share on social media
-
-## 🛠️ Tech Stack
-
-| Category | Technology |
-|----------|------------|
-| Frontend | React 19 + Vite 7 |
-| Styling | Tailwind CSS 4 + CSS Modules |
-| Charts | Recharts |
-| Heatmap | react-calendar-heatmap |
-| Animations | Framer Motion |
-| Image Export | @zumer/snapdom |
-| Icons | Remix Icon |
-| API | Mastodon REST API |
 
 ## 📁 Project Structure
 
