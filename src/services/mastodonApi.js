@@ -14,11 +14,20 @@ export const POPULAR_INSTANCES = [
 ];
 
 /**
- * Fetch with timeout support
+ * Fetch with timeout support and external abort signal
+ * @param {string} url - URL to fetch
+ * @param {Object} options - Fetch options
+ * @param {AbortSignal} [externalSignal] - Optional external abort signal for cancellation
  */
-async function fetchWithTimeout(url, options = {}) {
+async function fetchWithTimeout(url, options = {}, externalSignal) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+  // Link external signal to our controller if provided
+  const abortHandler = () => controller.abort();
+  if (externalSignal) {
+    externalSignal.addEventListener('abort', abortHandler);
+  }
 
   try {
     const response = await fetch(url, {
@@ -28,6 +37,9 @@ async function fetchWithTimeout(url, options = {}) {
     return response;
   } finally {
     clearTimeout(timeout);
+    if (externalSignal) {
+      externalSignal.removeEventListener('abort', abortHandler);
+    }
   }
 }
 
@@ -48,12 +60,13 @@ export function parseHandle(handle) {
 
 /**
  * Look up a user by their account name
+ * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  */
-export async function lookupAccount(instance, acct) {
+export async function lookupAccount(instance, acct, signal) {
   const baseUrl = instance.startsWith('http') ? instance : `https://${instance}`;
   const url = `${baseUrl}/api/v1/accounts/lookup?acct=${encodeURIComponent(acct)}`;
 
-  const response = await fetchWithTimeout(url);
+  const response = await fetchWithTimeout(url, {}, signal);
 
   if (!response.ok) {
     if (response.status === 404) {
@@ -67,6 +80,7 @@ export async function lookupAccount(instance, acct) {
 
 /**
  * Get an account's statuses (posts)
+ * @param {AbortSignal} [options.signal] - Optional abort signal for cancellation
  */
 export async function getAccountStatuses(instance, accountId, options = {}) {
   const baseUrl = instance.startsWith('http') ? instance : `https://${instance}`;
@@ -81,7 +95,7 @@ export async function getAccountStatuses(instance, accountId, options = {}) {
   }
 
   const url = `${baseUrl}/api/v1/accounts/${accountId}/statuses?${params}`;
-  const response = await fetchWithTimeout(url);
+  const response = await fetchWithTimeout(url, {}, options.signal);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch toots: ${response.status}`);
@@ -92,8 +106,9 @@ export async function getAccountStatuses(instance, accountId, options = {}) {
 
 /**
  * Fetch all statuses for the current calendar year
+ * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  */
-export async function fetchYearStatuses(instance, accountId, onProgress) {
+export async function fetchYearStatuses(instance, accountId, onProgress, signal) {
   const now = new Date();
   const currentYear = now.getFullYear();
   const startOfYear = new Date(currentYear, 0, 1);
@@ -106,10 +121,16 @@ export async function fetchYearStatuses(instance, accountId, onProgress) {
   const maxFetches = 100;
 
   while (hasMore && fetchCount < maxFetches) {
+    // Check if aborted before each request
+    if (signal?.aborted) {
+      throw new DOMException('Request cancelled', 'AbortError');
+    }
+
     const statuses = await getAccountStatuses(instance, accountId, {
       limit: 40,
       maxId,
       excludeReblogs: false,
+      signal,
     });
 
     if (statuses.length === 0) {
@@ -147,13 +168,14 @@ export async function fetchYearStatuses(instance, accountId, onProgress) {
 
 /**
  * Main function to get user data for the wrapped experience
+ * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  */
-export async function getUserData(handle, onProgress, lang = 'en') {
+export async function getUserData(handle, onProgress, lang = 'en', signal) {
   const parsed = parseHandle(handle);
 
   if (!parsed) {
     const errorMsg = lang === 'zh'
-      ? '请输入有效的 Mastodon 账户地址，格式: 用户名@实例'
+      ? '请输入有效的 Mastodon 账户地址，格式：用户名@实例'
       : 'Please enter a valid Mastodon handle, format: username@instance';
     throw new Error(errorMsg);
   }
@@ -162,11 +184,11 @@ export async function getUserData(handle, onProgress, lang = 'en') {
 
   const lookupMsg = lang === 'zh' ? '正在查找用户...' : 'Looking up user...';
   if (onProgress) onProgress(lookupMsg);
-  const account = await lookupAccount(instance, username);
+  const account = await lookupAccount(instance, username, signal);
 
   const fetchingMsg = lang === 'zh' ? '正在获取嘟文...' : 'Fetching toots...';
   if (onProgress) onProgress(fetchingMsg);
-  const statuses = await fetchYearStatuses(instance, account.id, (current, total) => {
+  const statuses = await fetchYearStatuses(instance, account.id, (current, _total) => {
     const progressMsg = lang === 'zh'
       ? `正在获取嘟文... ${current} 条`
       : `Fetching toots... ${current} toots`;
@@ -174,7 +196,7 @@ export async function getUserData(handle, onProgress, lang = 'en') {
       onProgress(progressMsg);
       onProgress(current);
     }
-  });
+  }, signal);
 
   return { account, statuses, instance };
 }
