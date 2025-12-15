@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { POPULAR_INSTANCES } from '../services/mastodonApi';
-import { LoadingModal } from './ui/loading-modal';
-import 'remixicon/fonts/remixicon.css';
-import './LandingPage.css';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { POPULAR_INSTANCES } from "../services/mastodonApi";
+import { LoadingModal } from "./ui/loading-modal";
+import { SparklingIcon, LockIcon } from "./ui/icons";
+import "./LandingPage.css";
 
 export default function LandingPage({
   onSubmit,
@@ -12,32 +12,32 @@ export default function LandingPage({
   error: errorProp,
   loadingProgress = 0,
   lang,
-  t
+  t,
 }) {
-  const [handle, setHandle] = useState('');
-  const [error, setError] = useState('');
+  const [handle, setHandle] = useState("");
+  const [error, setError] = useState("");
   const currentYear = new Date().getFullYear();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!handle.trim()) {
-      setError(t('error_empty'));
+      setError(t("error_empty"));
       return;
     }
-    
+
     // Basic validation - should contain @
-    if (!handle.includes('@')) {
-      setError(t('error_invalid'));
+    if (!handle.includes("@")) {
+      setError(t("error_invalid"));
       return;
     }
-    
-    setError('');
+
+    setError("");
     onSubmit(handle.trim());
   };
 
   const handleQuickSelect = (instance) => {
-    const username = handle.split('@')[0].replace('@', '');
+    const username = handle.split("@")[0].replace("@", "");
     if (username) {
       setHandle(`${username}@${instance.name}`);
     }
@@ -47,34 +47,34 @@ export default function LandingPage({
     <div className="landing-page">
       <div className="bg-gradient"></div>
       <div className="bg-glow"></div>
-      
-      <motion.div 
+
+      <motion.div
         className="landing-content"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         <div className="landing-header">
-          
-          <motion.h1 
+          <motion.h1
             className="title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-          >Mastodon Wrapped
+          >
+            Mastodon Wrapped
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             className="subtitle"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            {t('subtitle', { year: currentYear })}
+            {t("subtitle", { year: currentYear })}
           </motion.p>
         </div>
 
-        <motion.form 
+        <motion.form
           className="search-form"
           onSubmit={handleSubmit}
           initial={{ opacity: 0, y: 20 }}
@@ -86,16 +86,16 @@ export default function LandingPage({
             <input
               type="text"
               className="input handle-input"
-              placeholder={t('placeholder')}
+              placeholder={t("placeholder")}
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
               disabled={isLoading}
             />
           </div>
-          <p className="input-helper">{t('helper')}</p>
-          
+          <p className="input-helper">{t("helper")}</p>
+
           {errorProp && (
-            <motion.p 
+            <motion.p
               className="error-message"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -105,7 +105,7 @@ export default function LandingPage({
           )}
 
           {error && (
-            <motion.p 
+            <motion.p
               className="error-message"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -113,33 +113,33 @@ export default function LandingPage({
               {error}
             </motion.p>
           )}
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="btn btn-primary submit-btn"
             disabled={isLoading}
           >
             {isLoading ? (
               <>
                 <span className="spinner-small"></span>
-                {loadingMessage || t('loading')}
+                {loadingMessage || t("loading")}
               </>
             ) : (
               <>
-                <i className="ri-sparkling-line"></i>
-                {t('cta')}
+                <SparklingIcon />
+                {t("cta")}
               </>
             )}
           </button>
         </motion.form>
 
-        <motion.div 
+        <motion.div
           className="quick-instances"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <p className="quick-label">{t('quick_instances')}</p>
+          <p className="quick-label">{t("quick_instances")}</p>
           <div className="instance-buttons">
             {POPULAR_INSTANCES.slice(0, 4).map((instance) => (
               <button
@@ -155,26 +155,34 @@ export default function LandingPage({
           </div>
         </motion.div>
 
-        <motion.p 
+        <motion.p
           className="privacy-note"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
         >
-          <i className="ri-lock-line"></i> {t('privacy')}
+          <LockIcon /> {t("privacy")}
         </motion.p>
       </motion.div>
 
       {/* Footer */}
-      <motion.footer 
+      <motion.footer
         className="landing-footer"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        <p>&copy; {t('footer_copyright', { year: currentYear })}</p>
+        <p>&copy; {t("footer_copyright", { year: currentYear })}</p>
         <p>
-          {t('inspiration')} <a href="https://x.com/i/status/1998855377409159457" target="_blank" rel="noopener noreferrer" className="hover-underline">Kate Deyneka</a>
+          {t("inspiration")}{" "}
+          <a
+            href="https://x.com/i/status/1998855377409159457"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover-underline"
+          >
+            Kate Deyneka
+          </a>
         </p>
       </motion.footer>
 
@@ -182,7 +190,7 @@ export default function LandingPage({
       <LoadingModal
         isOpen={isLoading}
         progress={loadingProgress}
-        message={loadingMessage || t('fetching')}
+        message={loadingMessage || t("fetching")}
         showPercentage={true}
         showCircularProgress={true}
         t={t}

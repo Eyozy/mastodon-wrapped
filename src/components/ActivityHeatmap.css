@@ -14,7 +14,7 @@
 .react-calendar-heatmap {
   width: 100%;
   /* Ensure a minimum width so squares don't get squished too small */
-  min-width: 600px; 
+  min-width: 600px;
   overflow: visible !important;
 }
 
@@ -142,11 +142,26 @@
   transition: transform 0.2s ease;
 }
 
-.legend-box.color-empty { background-color: #f1f5f9; border-color: #e2e8f0; }
-.legend-box.color-scale-1 { background-color: #dbeafe; border-color: #bfdbfe; }
-.legend-box.color-scale-2 { background-color: #93c5fd; border-color: #60a5fa; }
-.legend-box.color-scale-3 { background-color: #3b82f6; border-color: #2563eb; }
-.legend-box.color-scale-4 { background-color: #1d4ed8; border-color: #1e40af; }
+.legend-box.color-empty {
+  background-color: #f1f5f9;
+  border-color: #e2e8f0;
+}
+.legend-box.color-scale-1 {
+  background-color: #dbeafe;
+  border-color: #bfdbfe;
+}
+.legend-box.color-scale-2 {
+  background-color: #93c5fd;
+  border-color: #60a5fa;
+}
+.legend-box.color-scale-3 {
+  background-color: #3b82f6;
+  border-color: #2563eb;
+}
+.legend-box.color-scale-4 {
+  background-color: #1d4ed8;
+  border-color: #1e40af;
+}
 
 .legend-box:hover {
   transform: scale(1.2);
@@ -200,18 +215,27 @@
 }
 
 /* 下载模式样式 - 强制显示标签并确保正确间距 */
-.download-mode .react-calendar-heatmap .react-calendar-heatmap-weekday-labels text,
-.download-mode .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
+.download-mode
+  .react-calendar-heatmap
+  .react-calendar-heatmap-weekday-labels
+  text,
+.download-mode
+  .react-calendar-heatmap
+  .react-calendar-heatmap-month-labels
+  text {
   display: block !important;
 }
 
 /* 下载模式：大幅增加热力图标签与方块的间距 */
 .download-mode .react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
-  transform: translate(-20px, 15px) !important; /* 星期标签向左移动20px */
+  transform: translate(-20px, 15px) !important; /* 星期标签向左移动 20px */
 }
 
-.download-mode .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
-  transform: translateY(-25px) !important; /* 月份标签向上移动25px */
+.download-mode
+  .react-calendar-heatmap
+  .react-calendar-heatmap-month-labels
+  text {
+  transform: translateY(-25px) !important; /* 月份标签向上移动 25px */
 }
 
 .download-mode .react-calendar-heatmap svg {

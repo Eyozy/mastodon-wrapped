@@ -1,5 +1,3 @@
-
-
 .stats-display {
   min-height: 100vh;
   padding: var(--spacing-xl) var(--spacing-md);
@@ -11,9 +9,14 @@
   max-width: 900px;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-lg); /* 添加上下 padding */
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); /* 渐变背景色 */
+  background: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #f1f5f9 100%
+  ); /* 渐变背景色 */
   border-radius: 24px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01); /* 微妙的阴影 */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px -1px rgba(0, 0, 0, 0.01); /* 微妙的阴影 */
   border: 1px solid rgba(255, 255, 255, 0.8); /* 边框增加层次感 */
 }
 
@@ -24,7 +27,8 @@
   position: relative;
 }
 
-.back-button, .download-button {
+.back-button,
+.download-button {
   position: absolute;
   top: 0;
   background: rgba(255, 255, 255, 0.8);
@@ -58,7 +62,8 @@
   font-weight: 500;
 }
 
-.back-button:hover, .download-button:hover {
+.back-button:hover,
+.download-button:hover {
   background: #ffffff;
   border-color: var(--color-primary);
   transform: translateY(-1px);
@@ -134,7 +139,7 @@
 
 .stats-grid-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4列以容纳12个卡片 */
+  grid-template-columns: repeat(4, 1fr); /* 4 列以容纳 12 个卡片 */
   gap: 1rem;
 }
 
@@ -211,7 +216,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
 }
 
@@ -240,7 +245,10 @@
 /* Charts Summary Section */
 .charts-summary-section {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columns for Trend, Activity, Distribution */
+  grid-template-columns: repeat(
+    3,
+    1fr
+  ); /* 3 columns for Trend, Activity, Distribution */
   gap: 1rem;
   margin-bottom: var(--spacing-xl);
 }
@@ -342,7 +350,6 @@
   outline: none;
 }
 
-
 /* Heatmap & Top Toot Section */
 .chart-section {
   margin-bottom: var(--spacing-xl);
@@ -366,8 +373,12 @@
 
 /* Animation Keyframes */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -375,15 +386,15 @@
 /* Tablet (1024px and below) - 2 columns for better space utilization */
 @media (max-width: 1024px) {
   .stats-display {
-    padding: var(--spacing-lg) var(--spacing-md); /* 减少上下padding,保持左右padding */
+    padding: var(--spacing-lg) var(--spacing-md); /* 减少上下 padding，保持左右 padding */
   }
 
   .stats-grid-container {
-    grid-template-columns: repeat(3, 1fr); /* 平板显示3列 */
+    grid-template-columns: repeat(3, 1fr); /* 平板显示 3 列 */
   }
 
   .charts-summary-section {
-     grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   /* Keep download button text visible on tablet */
@@ -396,11 +407,11 @@
 /* Small Tablet (768px and below) - Still 2 columns but adjusted */
 @media (max-width: 768px) {
   .stats-display {
-    padding: var(--spacing-md) 12px; /* 确保至少12px的左右间距 */
+    padding: var(--spacing-md) 12px; /* 确保至少 12px 的左右间距 */
   }
 
   .stats-grid-container {
-    grid-template-columns: repeat(2, 1fr); /* 小平板显示2列 */
+    grid-template-columns: repeat(2, 1fr); /* 小平板显示 2 列 */
     gap: 0.75rem;
   }
 
@@ -420,7 +431,7 @@
 /* Mobile (640px and below) - Two column layout for better space utilization */
 @media (max-width: 640px) {
   .stats-display {
-    padding: var(--spacing-md) 16px; /* 增加到16px的左右间距 */
+    padding: var(--spacing-md) 16px; /* 增加到 16px 的左右间距 */
   }
 
   .stats-container {
@@ -484,7 +495,7 @@
 /* Extra small screens (480px and below) */
 @media (max-width: 480px) {
   .stats-display {
-    padding: var(--spacing-sm) var(--spacing-xs); /* 最小屏幕使用更小的padding */
+    padding: var(--spacing-sm) var(--spacing-xs); /* 最小屏幕使用更小的 padding */
   }
 
   .stats-container {
@@ -500,7 +511,8 @@
     height: 80px;
   }
 
-  .back-button, .download-button {
+  .back-button,
+  .download-button {
     width: 36px;
     height: 36px;
   }
