@@ -11,6 +11,8 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1000,
+    cssCodeSplit: true,
+    cssMinify: 'lightningcss',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -18,6 +20,12 @@ export default defineConfig({
           'ui-vendor': ['framer-motion', 'clsx', 'tailwind-merge', 'class-variance-authority'],
           'chart-vendor': ['recharts', 'react-calendar-heatmap'],
           'utils-vendor': ['@zumer/snapdom']
+        },
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'index.css') {
+            return 'assets/critical-[hash][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
         },
       },
     },
