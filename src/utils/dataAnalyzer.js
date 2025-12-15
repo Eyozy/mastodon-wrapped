@@ -306,6 +306,21 @@ export function stripHtml(html) {
 }
 
 /**
+ * Escape HTML entities to prevent XSS attacks
+ * @param {string} str - String to escape
+ * @returns {string} Escaped string safe for HTML insertion
+ */
+function escapeHtml(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+/**
  * Convert Mastodon custom emoji shortcodes to img tags
  * @param {string} displayName - The display name that may contain emoji shortcodes like :emoji:
  * @param {Array} emojis - Array of emoji objects from Mastodon API with { shortcode, url, static_url }
@@ -313,13 +328,19 @@ export function stripHtml(html) {
  */
 export function emojifyDisplayName(displayName, emojis) {
     if (!displayName) return '';
-    if (!emojis || emojis.length === 0) return displayName;
-
-    let result = displayName;
+    
+    // Escape HTML entities first to prevent XSS attacks
+    let result = escapeHtml(displayName);
+    
+    if (!emojis || emojis.length === 0) return result;
 
     for (const emoji of emojis) {
+        // Escape shortcode for safe regex and HTML attribute usage
+        const escapedShortcode = escapeHtml(emoji.shortcode);
         const shortcode = `:${emoji.shortcode}:`;
-        const imgTag = `<img src="${emoji.static_url || emoji.url}" alt="${emoji.shortcode}" class="emoji" draggable="false" />`;
+        // Only use static_url or url if they are valid URLs (basic check)
+        const emojiUrl = (emoji.static_url || emoji.url || '').replace(/"/g, '&quot;');
+        const imgTag = `<img src="${emojiUrl}" alt="${escapedShortcode}" class="emoji" draggable="false" />`;
         result = result.split(shortcode).join(imgTag);
     }
 
