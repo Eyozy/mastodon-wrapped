@@ -87,7 +87,7 @@ export const translations = {
         title: "{year} Mastodon Wrapped",
         subtitle: "回顾你的 {year} 年度 Mastodon 活动",
         placeholder: "请输入你的 Mastodon 账号",
-        helper: "例: Gargron@mastodon.social",
+        helper: "例：Gargron@mastodon.social",
         cta: "获取年度报告",
         loading: "加载中...",
         quick_instances: "常用实例：",
@@ -163,7 +163,7 @@ export const translations = {
 
         // Errors
         error_empty: "请输入你的 Mastodon 账户地址",
-        error_invalid: "请输入完整的账户地址，格式: 用户名@实例",
+        error_invalid: "请输入完整的账户地址，格式：用户名@实例",
     }
 };
 
