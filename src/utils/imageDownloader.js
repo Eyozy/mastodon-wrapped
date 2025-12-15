@@ -1,4 +1,5 @@
-import { snapdom } from '@zumer/snapdom';
+// Dynamic import: only load snapdom when user clicks download (~91KB saved from initial bundle)
+const getSnapdom = () => import('@zumer/snapdom').then(m => m.snapdom);
 
 // CORS proxy list with fallback
 const CORS_PROXIES = [
@@ -15,6 +16,9 @@ export async function downloadReportAsImage(elementId, filename, onProgress) {
   if (!element) {
     throw new Error('Report element not found');
   }
+
+  // Load snapdom dynamically
+  const snapdom = await getSnapdom();
 
   onProgress?.('Preparing capture...');
 

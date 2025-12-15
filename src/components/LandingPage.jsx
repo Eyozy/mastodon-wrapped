@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { POPULAR_INSTANCES } from "../services/mastodonApi";
 import { LoadingModal } from "./ui/loading-modal";
 import { SparklingIcon, LockIcon } from "./ui/icons";
@@ -48,38 +47,18 @@ export default function LandingPage({
       <div className="bg-gradient"></div>
       <div className="bg-glow"></div>
 
-      <motion.div
-        className="landing-content"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
+      <div className="landing-content animate-fade-in-up">
         <div className="landing-header">
-          <motion.h1
-            className="title"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            Mastodon Wrapped
-          </motion.h1>
+          <h1 className="title animate-fade-in-up delay-1">Mastodon Wrapped</h1>
 
-          <motion.p
-            className="subtitle"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
+          <p className="subtitle animate-fade-in-up delay-2">
             {t("subtitle", { year: currentYear })}
-          </motion.p>
+          </p>
         </div>
 
-        <motion.form
-          className="search-form"
+        <form
+          className="search-form animate-fade-in-up delay-3"
           onSubmit={handleSubmit}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
         >
           <div className="input-wrapper">
             <span className="input-prefix">@</span>
@@ -95,24 +74,10 @@ export default function LandingPage({
           <p className="input-helper">{t("helper")}</p>
 
           {errorProp && (
-            <motion.p
-              className="error-message"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {errorProp}
-            </motion.p>
+            <p className="error-message animate-fade-in">{errorProp}</p>
           )}
 
-          {error && (
-            <motion.p
-              className="error-message"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {error}
-            </motion.p>
-          )}
+          {error && <p className="error-message animate-fade-in">{error}</p>}
 
           <button
             type="submit"
@@ -131,14 +96,9 @@ export default function LandingPage({
               </>
             )}
           </button>
-        </motion.form>
+        </form>
 
-        <motion.div
-          className="quick-instances"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
+        <div className="quick-instances animate-fade-in delay-4">
           <p className="quick-label">{t("quick_instances")}</p>
           <div className="instance-buttons">
             {POPULAR_INSTANCES.slice(0, 4).map((instance) => (
@@ -153,25 +113,15 @@ export default function LandingPage({
               </button>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        <motion.p
-          className="privacy-note"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-        >
+        <p className="privacy-note animate-fade-in delay-5">
           <LockIcon /> {t("privacy")}
-        </motion.p>
-      </motion.div>
+        </p>
+      </div>
 
       {/* Footer */}
-      <motion.footer
-        className="landing-footer"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-      >
+      <footer className="landing-footer animate-fade-in delay-6">
         <p>&copy; {t("footer_copyright", { year: currentYear })}</p>
         <p>
           {t("inspiration")}{" "}
@@ -184,7 +134,7 @@ export default function LandingPage({
             Kate Deyneka
           </a>
         </p>
-      </motion.footer>
+      </footer>
 
       {/* Loading Modal */}
       <LoadingModal

@@ -18,8 +18,7 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
           'ui-vendor': ['framer-motion', 'clsx', 'tailwind-merge', 'class-variance-authority'],
-          'chart-vendor': ['recharts', 'react-calendar-heatmap'],
-          'utils-vendor': ['@zumer/snapdom']
+          'chart-vendor': ['recharts', 'react-calendar-heatmap']
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {
