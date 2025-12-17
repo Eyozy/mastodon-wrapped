@@ -46,5 +46,14 @@ export default defineConfig({
         },
       },
     },
+    // Enable more aggressive minification
+    target: 'es2020',
+    modulePreload: {
+      polyfill: false, // Reduce polyfill overhead
+      resolveDependencies: (filename, deps, { hostType }) => {
+        // Don't preload charts-vendor on initial page load
+        return deps.filter(dep => !dep.includes('charts-vendor'));
+      },
+    },
   },
 })
