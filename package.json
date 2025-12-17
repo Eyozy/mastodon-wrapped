@@ -21,7 +21,6 @@
     "react-calendar-heatmap": "^1.10.0",
     "react-dom": "^19.2.0",
     "recharts": "^3.5.1",
-    "remixicon": "^4.7.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

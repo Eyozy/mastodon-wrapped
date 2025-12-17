@@ -1,5 +1,5 @@
-import { motion } from "framer-motion"
 import { cn } from "../../lib/utils"
+import "./loading-spinner.css"
 
 export function LoadingSpinner({ className, size = "md" }) {
   const sizeClasses = {
@@ -12,11 +12,7 @@ export function LoadingSpinner({ className, size = "md" }) {
   return (
     <div className={cn("relative", sizeClasses[size], className)}>
       <div className="absolute inset-0 border-2 border-gray-200 rounded-full"></div>
-      <motion.div
-        className="absolute inset-0 border-2 border-blue-600 rounded-full border-t-transparent"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-      />
+      <div className="absolute inset-0 border-2 border-blue-600 rounded-full border-t-transparent spinner-rotate" />
     </div>
   )
 }
@@ -25,18 +21,10 @@ export function LoadingDots({ className }) {
   return (
     <div className={cn("flex space-x-1", className)}>
       {[0, 1, 2].map((index) => (
-        <motion.div
+        <div
           key={index}
-          className="w-2 h-2 bg-blue-600 rounded-full"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [1, 0.7, 1]
-          }}
-          transition={{
-            duration: 1,
-            repeat: Infinity,
-            delay: index * 0.2
-          }}
+          className="w-2 h-2 bg-blue-600 rounded-full loading-dot"
+          style={{ animationDelay: `${index * 0.2}s` }}
         />
       ))}
     </div>
@@ -47,18 +35,10 @@ export function LoadingPulse({ className }) {
   return (
     <div className={cn("flex space-x-2", className)}>
       {[0, 1, 2].map((index) => (
-        <motion.div
+        <div
           key={index}
-          className="w-3 h-12 bg-blue-600 rounded-full"
-          animate={{
-            scaleY: [1, 0.5, 1]
-          }}
-          transition={{
-            duration: 0.8,
-            repeat: Infinity,
-            delay: index * 0.1,
-            ease: "easeInOut"
-          }}
+          className="w-3 h-12 bg-blue-600 rounded-full loading-pulse"
+          style={{ animationDelay: `${index * 0.1}s` }}
         />
       ))}
     </div>
@@ -88,19 +68,18 @@ export function CircularProgress({ progress, size = 120, strokeWidth = 8, classN
           className="text-gray-200"
         />
         {/* Progress circle */}
-        <motion.circle
+        <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="none"
-          className="text-blue-600"
+          className="text-blue-600 circular-progress-animate"
           strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 0.5s ease-in-out' }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">

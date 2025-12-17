@@ -27,12 +27,16 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     cssCodeSplit: true,
     cssMinify: 'lightningcss',
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'ui-vendor': ['framer-motion', 'clsx', 'tailwind-merge', 'class-variance-authority'],
-          'chart-vendor': ['recharts', 'react-calendar-heatmap']
+          // React core
+          'react-vendor': ['react', 'react-dom', 'react/jsx-runtime'],
+          // Charts - lazy loaded
+          'charts-vendor': ['recharts', 'react-calendar-heatmap'],
+          // UI utilities
+          'ui-vendor': ['clsx', 'tailwind-merge', 'class-variance-authority'],
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {
