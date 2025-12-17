@@ -9,6 +9,20 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    hmr: {
+      overlay: false,
+    },
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'framer-motion',
+      'recharts',
+      'react-calendar-heatmap'
+    ],
+  },
   build: {
     chunkSizeWarningLimit: 1000,
     cssCodeSplit: true,
