@@ -173,12 +173,12 @@
 @media (max-width: 768px) {
   .activity-heatmap-container {
     padding: 0.5rem;
-    overflow-x: visible; /* 移除滚动条 */
+    overflow-x: visible; /* Remove scrollbar */
   }
 
   /* Reduce min-width to fit tablet screens without scrolling */
   .react-calendar-heatmap {
-    min-width: 100%; /* 适应容器宽度 */
+    min-width: 100%; /* Adapt to container width */
   }
 
   /* Hide both weekday and month labels on tablets and below */
@@ -214,7 +214,7 @@
   }
 }
 
-/* 下载模式样式 - 强制显示标签并确保正确间距 */
+/* Download mode styles - force display labels and ensure proper spacing */
 .download-mode
   .react-calendar-heatmap
   .react-calendar-heatmap-weekday-labels
@@ -226,23 +226,26 @@
   display: block !important;
 }
 
-/* 下载模式：大幅增加热力图标签与方块的间距 */
+/* Download mode: significantly increase spacing between heatmap labels and squares */
 .download-mode .react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
-  transform: translate(-20px, 15px) !important; /* 星期标签向左移动 20px */
+  transform: translate(
+    -20px,
+    15px
+  ) !important; /* Move weekday labels left by 20px */
 }
 
 .download-mode
   .react-calendar-heatmap
   .react-calendar-heatmap-month-labels
   text {
-  transform: translateY(-25px) !important; /* 月份标签向上移动 25px */
+  transform: translateY(-25px) !important; /* Move month labels up by 25px */
 }
 
 .download-mode .react-calendar-heatmap svg {
-  padding-top: 45px !important; /* 增加顶部空间 */
+  padding-top: 45px !important; /* Increase top space */
 }
 
-/* 下载模式：隐藏悬停文字 */
+/* Download mode: hide hover text */
 .download-mode .heatmap-hover-text {
   display: none !important;
 }

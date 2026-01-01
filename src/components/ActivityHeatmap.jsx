@@ -4,23 +4,26 @@ import "react-calendar-heatmap/dist/styles.css";
 import "./ActivityHeatmap.css";
 
 /**
- * ActivityHeatmap - 显示用户全年活动的日历热力图
+ * ActivityHeatmap - Calendar heatmap displaying user's activity throughout the year
  * @param {Object} props
- * @param {Object} props.activityCalendar - 日期到发布数量的映射对象
- * @param {number} props.year - 年份
+ * @param {Object} props.activityCalendar - Mapping object from date to post count
+ * @param {number} props.year - The year to display
  */
 export default function ActivityHeatmap({ activityCalendar, year, t }) {
   const [hoveredData, setHoveredData] = useState(null);
 
   // Convert data format to react-calendar-heatmap required format
-  const heatmapData = Object.entries(activityCalendar).map(([date, count]) => ({
-    date,
-    count,
-  }));
+  // The library expects date as string "YYYY-MM-DD" format
+  const heatmapData = Object.entries(activityCalendar || {}).map(
+    ([dateStr, count]) => ({
+      date: dateStr, // Keep as string "YYYY-MM-DD"
+      count,
+    })
+  );
 
-  // Set date range: from beginning of year to current date or end of year
-  const startDate = new Date(year, 0, 1);
-  const endDate = new Date(year, 11, 31);
+  // Set date range: use string format for consistency
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
 
   // Custom tooltip content
   const getTooltipDataAttrs = (value) => {
@@ -77,6 +80,12 @@ export default function ActivityHeatmap({ activityCalendar, year, t }) {
     }
 
     return React.cloneElement(element, {
+      className: element.props.className || "",
+      fill: color,
+      stroke: stroke,
+      strokeWidth: 1,
+      rx: 2,
+      ry: 2,
       style: {
         fill: color,
         stroke: stroke,
