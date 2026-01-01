@@ -1,24 +1,38 @@
 /**
  * Data Analyzer for Mastodon Wrapped
  * Analyzes user's statuses to generate statistics
+ * All time processing uses LOCAL TIME to match user's perceived experience
  */
 
 /**
- * Analyze all statuses and generate comprehensive statistics
+ * Get local date string (YYYY-MM-DD) from a Date object
+ * Uses local timezone to match user's perceived posting time
  */
-export function analyzeStatuses(statuses, account, lang = 'en') {
+function getLocalDateString(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+/**
+ * Analyze all statuses and generate comprehensive statistics
+ * @param {Array} statuses - Array of status objects
+ * @param {Object} account - User account object
+ * @param {string} lang - Language code ('en' or 'zh')
+ * @param {number} [year] - Year to analyze (defaults to current local year)
+ */
+export function analyzeStatuses(statuses, account, lang = 'en', year) {
     if (!statuses || statuses.length === 0) {
         return null;
     }
 
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const startOfYear = new Date(currentYear, 0, 1);
-    const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59);
+    const targetYear = year || new Date().getFullYear();
 
+    // Filter statuses by LOCAL year to match user's perceived time
     const yearStatuses = statuses.filter(s => {
         const d = new Date(s.created_at);
-        return d >= startOfYear && d <= endOfYear;
+        return d.getFullYear() === targetYear;
     });
 
     const totalPosts = yearStatuses.length;
@@ -66,7 +80,7 @@ export function analyzeStatuses(statuses, account, lang = 'en') {
 
     return {
         account,
-        year: currentYear,
+        year: targetYear,
         totalPosts,
         originalPosts,
         reblogs,
@@ -91,7 +105,7 @@ export function analyzeStatuses(statuses, account, lang = 'en') {
         activityCalendar,
         longestStreak,
         mostActiveDay,
-        dateRange: { start: startOfYear, end: now },
+        dateRange: { start: new Date(targetYear, 0, 1), end: new Date() },
     };
 }
 
@@ -160,7 +174,8 @@ function getMonthlyDistribution(statuses, lang = 'en') {
         zh: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
     };
     const names = monthNames[lang] || monthNames.en;
-    const months = names.map((name, i) => ({ name, count: 0 }));
+    // Use month: 1-12 instead of 0-11 for proper display
+    const months = names.map((name, i) => ({ name, month: i + 1, count: 0 }));
 
     statuses.forEach(status => {
         const month = new Date(status.created_at).getMonth();
@@ -219,7 +234,7 @@ function getHashtagStats(statuses) {
 function getActivityCalendar(statuses) {
     const calendar = {};
     statuses.forEach(status => {
-        const date = new Date(status.created_at).toISOString().split('T')[0];
+        const date = getLocalDateString(new Date(status.created_at));
         calendar[date] = (calendar[date] || 0) + 1;
     });
     return calendar;
@@ -229,7 +244,7 @@ function calculateLongestStreak(statuses) {
     if (statuses.length === 0) return 0;
 
     const dates = new Set(
-        statuses.map(s => new Date(s.created_at).toISOString().split('T')[0])
+        statuses.map(s => getLocalDateString(new Date(s.created_at)))
     );
     const sortedDates = Array.from(dates).sort();
 
@@ -256,7 +271,7 @@ function getMostActiveDay(statuses) {
     const dayCounts = {};
 
     statuses.forEach(status => {
-        const date = new Date(status.created_at).toISOString().split('T')[0];
+        const date = getLocalDateString(new Date(status.created_at));
         dayCounts[date] = (dayCounts[date] || 0) + 1;
     });
 
@@ -328,19 +343,50 @@ function escapeHtml(str) {
  */
 export function emojifyDisplayName(displayName, emojis) {
     if (!displayName) return '';
-    
+
     // Escape HTML entities first to prevent XSS attacks
     let result = escapeHtml(displayName);
-    
+
     if (!emojis || emojis.length === 0) return result;
 
     for (const emoji of emojis) {
-        // Escape shortcode for safe regex and HTML attribute usage
+        // Security: Validate shortcode format (only alphanumeric and underscores)
+        if (!emoji.shortcode || !/^[a-z0-9_]+$/i.test(emoji.shortcode)) {
+            console.warn('Invalid emoji shortcode:', emoji.shortcode);
+            continue; // Skip invalid emoji
+        }
+
+        // Security: Validate URL protocol - only allow HTTPS
+        const emojiUrl = emoji.static_url || emoji.url;
+        if (!emojiUrl || typeof emojiUrl !== 'string') {
+            console.warn('Missing or invalid emoji URL');
+            continue;
+        }
+
+        // Ensure URL starts with https:// (not javascript:, data:, etc.)
+        if (!emojiUrl.startsWith('https://')) {
+            console.warn('Unsafe emoji URL protocol:', emojiUrl);
+            continue;
+        }
+
+        // Additional URL validation
+        try {
+            const url = new URL(emojiUrl);
+            if (url.protocol !== 'https:') {
+                console.warn('Non-HTTPS emoji URL:', emojiUrl);
+                continue;
+            }
+        } catch (_error) {
+            console.warn('Invalid emoji URL format:', emojiUrl);
+            continue;
+        }
+
         const escapedShortcode = escapeHtml(emoji.shortcode);
+        const escapedUrl = escapeHtml(emojiUrl);
         const shortcode = `:${emoji.shortcode}:`;
-        // Only use static_url or url if they are valid URLs (basic check)
-        const emojiUrl = (emoji.static_url || emoji.url || '').replace(/"/g, '&quot;');
-        const imgTag = `<img src="${emojiUrl}" alt="${escapedShortcode}" class="emoji" draggable="false" />`;
+
+        // Use escaped URL in img tag
+        const imgTag = `<img src="${escapedUrl}" alt="${escapedShortcode}" class="emoji" draggable="false" loading="lazy" />`;
         result = result.split(shortcode).join(imgTag);
     }
 

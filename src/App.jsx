@@ -1,5 +1,11 @@
 import { useState, useRef, lazy, Suspense } from "react";
-import { getUserData } from "./services/mastodonApi";
+import {
+  getUserData,
+  getDefaultYear,
+  lookupAccount,
+  getAvailableYears,
+  parseHandle,
+} from "./services/mastodonApi";
 import { analyzeStatuses } from "./utils/dataAnalyzer";
 import { getTranslation } from "./utils/translations";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -21,6 +27,8 @@ function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [stats, setStats] = useState(null);
   const [error, setError] = useState("");
+  const [selectedYear, setSelectedYear] = useState(getDefaultYear());
+  const [availableYears, setAvailableYears] = useState([]);
 
   // Ref to hold the current AbortController for request cancellation
   const abortControllerRef = useRef(null);
@@ -28,7 +36,7 @@ function App() {
   const t = (key, params) => getTranslation(lang, key, params);
   const toggleLanguage = () => setLang((prev) => (prev === "en" ? "zh" : "en"));
 
-  const handleFetchStats = async (handle) => {
+  const handleFetchStats = async (handle, yearOverride) => {
     // Cancel any in-flight request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -44,8 +52,43 @@ function App() {
     setError("");
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setLoadingProgress(10);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setLoadingProgress(8);
+
+      // First, look up the account and get available years
+      const parsed = parseHandle(handle);
+      if (!parsed) {
+        throw new Error(
+          lang === "zh"
+            ? "请输入有效的 Mastodon 账户地址，格式：用户名@实例"
+            : "Please enter a valid Mastodon handle, format: username@instance"
+        );
+      }
+
+      const { username, instance } = parsed;
+      const lookupMsg =
+        lang === "zh" ? "正在查找用户..." : "Looking up user...";
+      setLoadingMessage(lookupMsg);
+      const account = await lookupAccount(
+        instance,
+        username,
+        controller.signal
+      );
+      setLoadingProgress(12);
+
+      // Get available years from user's posts
+      const { years, defaultYear } = await getAvailableYears(
+        instance,
+        account.id,
+        controller.signal
+      );
+      setAvailableYears(years);
+      setLoadingProgress(15);
+
+      // Use yearOverride if provided, otherwise use auto-detected defaultYear
+      const targetYear =
+        yearOverride !== undefined ? yearOverride : defaultYear;
+      setSelectedYear(targetYear);
 
       const data = await getUserData(
         handle,
@@ -53,24 +96,30 @@ function App() {
           if (typeof msg === "string") {
             setLoadingMessage(msg);
           } else if (typeof msg === "number") {
-            const progress = Math.min(10 + (msg / 50) * 0.65, 75);
+            const progress = Math.min(15 + (msg / 50) * 0.6, 75);
             setLoadingProgress(Math.round(progress));
           }
         },
         lang,
-        controller.signal
+        controller.signal,
+        targetYear
       );
 
       setLoadingMessage(t("analyzing"));
       setLoadingProgress(80);
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      const analysisResult = analyzeStatuses(data.statuses, data.account, lang);
+      const analysisResult = analyzeStatuses(
+        data.statuses,
+        data.account,
+        lang,
+        targetYear
+      );
       if (!analysisResult) {
         throw new Error(
           lang === "zh"
-            ? `未找到该用户在 ${new Date().getFullYear()} 年的公开嘟文。`
-            : `No public toots found for ${new Date().getFullYear()}.`
+            ? `未找到该用户在 ${targetYear} 年的公开嘟文。`
+            : `No public toots found for ${targetYear}.`
         );
       }
 
@@ -86,12 +135,18 @@ function App() {
       if (err.name === "AbortError") {
         return;
       }
-      console.error(err);
+
       setError(
         err.message ||
           (lang === "zh" ? "获取数据时发生错误" : "Error fetching data")
       );
       setAppState("landing");
+    } finally {
+      // Clean up abort controller reference to prevent memory leaks
+      // and ensure next request starts with a fresh controller
+      if (abortControllerRef.current?.signal.aborted) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
@@ -143,6 +198,14 @@ function App() {
               onReset={handleReset}
               lang={lang}
               t={t}
+              availableYears={availableYears}
+              selectedYear={selectedYear}
+              onYearChange={(year) =>
+                handleFetchStats(
+                  stats.account.acct + "@" + stats.account.url.split("/")[2],
+                  year
+                )
+              }
             />
           )}
         </main>

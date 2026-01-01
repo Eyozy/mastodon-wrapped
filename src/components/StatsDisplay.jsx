@@ -45,7 +45,15 @@ import {
 import "./StatsDisplay.css";
 import ActivityHeatmap from "./ActivityHeatmap";
 
-export default function StatsDisplay({ stats, onReset, lang, t }) {
+export default function StatsDisplay({
+  stats,
+  onReset,
+  lang,
+  t,
+  availableYears = [],
+  selectedYear,
+  onYearChange,
+}) {
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -80,12 +88,8 @@ export default function StatsDisplay({ stats, onReset, lang, t }) {
       const year = new Date().getFullYear();
       const filename = `mastodon-wrapped-${stats.account.acct}-${year}.png`;
 
-      await downloadReportAsImage("stats-container", filename, (message) => {
-        // You can add progress feedback here if needed
-        console.log(message);
-      });
+      await downloadReportAsImage("stats-container", filename);
     } catch (error) {
-      console.error("Failed to download image:", error);
       alert(t("error_download"));
     } finally {
       setIsDownloading(false);
@@ -171,6 +175,22 @@ export default function StatsDisplay({ stats, onReset, lang, t }) {
           </div>
           <h2 className="stats-title">
             {t("report_title", { year: stats.year })}
+            {availableYears.length > 1 && (
+              <span className="year-selector">
+                {availableYears.map((year) => (
+                  <button
+                    key={year}
+                    className={`year-btn ${
+                      year === stats.year ? "active" : ""
+                    }`}
+                    onClick={() => onYearChange && onYearChange(year)}
+                    disabled={year === stats.year}
+                  >
+                    {year}
+                  </button>
+                ))}
+              </span>
+            )}
           </h2>
         </motion.header>
 
@@ -400,6 +420,12 @@ export default function StatsDisplay({ stats, onReset, lang, t }) {
                     }}
                     labelStyle={{ color: "#64748b", marginBottom: "2px" }}
                     itemStyle={{ color: "#8b5cf6", fontWeight: "bold" }}
+                    labelFormatter={(value, payload) => {
+                      if (payload && payload[0]) {
+                        return payload[0].payload.name;
+                      }
+                      return value;
+                    }}
                   />
                 </LineChart>
               </ResponsiveContainer>

@@ -15,7 +15,6 @@ export default function LandingPage({
 }) {
   const [handle, setHandle] = useState("");
   const [error, setError] = useState("");
-  const currentYear = new Date().getFullYear();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -52,7 +51,7 @@ export default function LandingPage({
           <h1 className="title animate-fade-in-up delay-1">Mastodon Wrapped</h1>
 
           <p className="subtitle animate-fade-in-up delay-2">
-            {t("subtitle", { year: currentYear })}
+            {t("subtitle_auto")}
           </p>
         </div>
 
@@ -122,7 +121,7 @@ export default function LandingPage({
 
       {/* Footer */}
       <footer className="landing-footer animate-fade-in delay-6">
-        <p>&copy; {t("footer_copyright", { year: currentYear })}</p>
+        <p>&copy; {t("footer_copyright", { year: new Date().getFullYear() })}</p>
         <p>
           {t("inspiration")}{" "}
           <a
