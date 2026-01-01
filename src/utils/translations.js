@@ -3,6 +3,7 @@ export const translations = {
         // Landing Page
         title: "{year} Mastodon Wrapped",
         subtitle: "Review your Mastodon activity for {year}",
+        subtitle_auto: "Review your annual Mastodon activity",
         placeholder: "Enter your Mastodon handle (e.g. user@instance.social)",
         helper: "Example: Gargron@mastodon.social",
         cta: "Get Wrapped",
@@ -25,22 +26,22 @@ export const translations = {
         back: "Back",
 
         // Identity
-        persona_label: "Annual Persona",
+        persona_label: "Persona",
         chronotype_label: "Chronotype",
 
         // Impact
-        impact_score: "Social Impact Score",
+        impact_score: "Impact",
         impact_detail_reblog: "Reblog x2",
         impact_detail_fav: "Like x1",
         impact_detail_post: "Post x0.1",
         impact_detail_streak: "Streak x5",
 
         // Mini Stats
-        total_posts: "Total Posts",
+        total_posts: "Posts",
         original_posts: "Originals",
-        favorites_received: "Likes Rcvd",
-        reblogs_received: "Boosts Rcvd",
-        longest_streak: "Longest Streak",
+        favorites_received: "Likes",
+        reblogs_received: "Boosts",
+        longest_streak: "Streak",
         avg_favorites: "Avg Likes",
         days: "days",
 
@@ -86,6 +87,7 @@ export const translations = {
         // Landing Page
         title: "{year} Mastodon Wrapped",
         subtitle: "回顾你的 {year} 年度 Mastodon 活动",
+        subtitle_auto: "回顾你的 Mastodon 年度活动",
         placeholder: "请输入你的 Mastodon 账号",
         helper: "例：Gargron@mastodon.social",
         cta: "获取年度报告",
@@ -108,23 +110,23 @@ export const translations = {
         back: "返回",
 
         // Identity
-        persona_label: "年度人格标签",
-        chronotype_label: "作息人格",
+        persona_label: "人格",
+        chronotype_label: "作息",
 
         // Impact
-        impact_score: "社交影响力指数",
+        impact_score: "影响力",
         impact_detail_reblog: "转发 x2",
         impact_detail_fav: "点赞 x1",
         impact_detail_post: "发文 x0.1",
         impact_detail_streak: "连更 x5",
 
         // Mini Stats
-        total_posts: "总发布数",
-        original_posts: "原创内容",
-        favorites_received: "收获点赞",
-        reblogs_received: "收获转发",
-        longest_streak: "最长连更",
-        avg_favorites: "平均获赞",
+        total_posts: "发布",
+        original_posts: "原创",
+        favorites_received: "获赞",
+        reblogs_received: "转发",
+        longest_streak: "连更",
+        avg_favorites: "均赞",
         days: "天",
 
         // Charts
@@ -135,9 +137,9 @@ export const translations = {
         heatmap_title: "年度活动日历",
 
         // Activity Highlights
-        most_active_month: "最活跃月份",
-        most_active_day: "最活跃日子",
-        busiest_hour: "最忙碌时刻",
+        most_active_month: "活跃月",
+        most_active_day: "活跃日",
+        busiest_hour: "高峰期",
 
         // Heatmap Legend
         legend_less: "少",
