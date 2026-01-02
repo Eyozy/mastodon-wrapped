@@ -48,8 +48,12 @@
 }
 
 .landing-page {
-  height: 100dvh;
   height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -253,10 +257,33 @@
   gap: 0.5rem;
 }
 
+.kofi-container {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: center;
+}
+
+.kofi-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.kofi-img {
+  height: 36px;
+  width: auto;
+  border: 0;
+  max-width: 90vw;
+  object-fit: contain;
+}
+
 @media (max-width: 768px) {
   .landing-page {
-    height: 100dvh;
     height: 100vh;
+    height: 100svh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
     padding: 0.75rem 1rem 2.5rem;
     overflow: hidden;
     display: flex;
@@ -349,6 +376,14 @@
     font-size: 0.75rem;
   }
 
+  .kofi-container {
+    margin-top: 0.5rem;
+  }
+
+  .kofi-img {
+    height: 32px;
+  }
+
   .landing-footer {
     position: absolute;
     bottom: 0.5rem;
@@ -410,4 +445,8 @@
 .hover-underline:hover::after {
   transform: scaleX(1);
   transform-origin: bottom left;
+}
+
+.footer-sep {
+  opacity: 0.5;
 }

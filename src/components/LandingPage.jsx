@@ -10,9 +10,10 @@ export default function LandingPage({
   loadingMessage,
   error: errorProp,
   loadingProgress = 0,
-  lang,
   t,
 }) {
+  const footerYearRange = `2025 - ${new Date().getFullYear()}`;
+
   const [handle, setHandle] = useState("");
   const [error, setError] = useState("");
 
@@ -117,11 +118,30 @@ export default function LandingPage({
         <p className="privacy-note animate-fade-in delay-5">
           <LockIcon /> {t("privacy")}
         </p>
+
+        <div className="kofi-container animate-fade-in delay-6">
+          <a
+            href="https://ko-fi.com/Y8Y41QN96M"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="kofi-link"
+            aria-label="Buy Me a Coffee on Ko-fi"
+          >
+            <img
+              className="kofi-img"
+              src="https://storage.ko-fi.com/cdn/kofi6.png?v=6"
+              alt="Buy Me a Coffee at ko-fi.com"
+              loading="lazy"
+            />
+          </a>
+        </div>
       </div>
 
       {/* Footer */}
       <footer className="landing-footer animate-fade-in delay-6">
-        <p>&copy; {t("footer_copyright", { year: new Date().getFullYear() })}</p>
+        <p>
+          &copy; {t("footer_copyright", { year: footerYearRange })}
+        </p>
         <p>
           {t("inspiration")}{" "}
           <a
@@ -132,6 +152,16 @@ export default function LandingPage({
           >
             Kate Deyneka
           </a>
+          {" "}
+          <span className="footer-sep">·</span>{" "}
+          <a
+            href="https://github.com/Eyozy/mastodon-wrapped"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover-underline"
+          >
+            GitHub
+          </a>
         </p>
       </footer>
 
@@ -140,8 +170,6 @@ export default function LandingPage({
         isOpen={isLoading}
         progress={loadingProgress}
         message={loadingMessage || t("fetching")}
-        showPercentage={true}
-        showCircularProgress={true}
         t={t}
       />
     </div>

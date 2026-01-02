@@ -1,20 +1,12 @@
 import { Progress } from "./progress";
-import {
-  LoadingSpinner,
-  LoadingPulse,
-  CircularProgress,
-} from "./loading-spinner";
+import { LoadingSpinner } from "./loading-spinner";
 import { cn } from "../../lib/utils";
 import "./loading-modal.css";
 
 export function LoadingModal({
   isOpen,
   progress = 0,
-  message = "正在加载中...",
-  showPercentage = true,
-  showCircularProgress = false,
-  steps = [],
-  currentStep = -1,
+  message = "Loading...",
   t,
 }) {
   if (!isOpen) return null;
@@ -65,7 +57,7 @@ export function LoadingModal({
 
 export function InlineLoading({
   progress = 0,
-  message = "正在加载...",
+  message = "Loading...",
   size = "sm",
   className,
 }) {

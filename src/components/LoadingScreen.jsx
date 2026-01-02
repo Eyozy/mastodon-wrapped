@@ -1,14 +1,6 @@
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { MastodonIcon, CheckIcon } from "./ui/icons";
 import "./LoadingScreen.css";
-
-const loadingMessages = [
-  "正在连接到 Mastodon 实例...",
-  "正在获取你的嘟文...",
-  "正在分析年度数据...",
-  "正在生成统计报告...",
-  "即将完成...",
-];
 
 export default function LoadingScreen({
   message,
@@ -21,7 +13,7 @@ export default function LoadingScreen({
       <div className="bg-gradient"></div>
       <div className="bg-glow"></div>
 
-      <motion.div
+      <Motion.div
         className="loading-content"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -34,29 +26,29 @@ export default function LoadingScreen({
             <div className="loading-ring-3"></div>
           </div>
 
-          <motion.div
+          <Motion.div
             className="loading-logo"
             animate={{ rotate: 360 }}
             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
           >
             <MastodonIcon />
-          </motion.div>
+          </Motion.div>
         </div>
 
-        <motion.p
+        <Motion.p
           className="loading-message"
           key={message}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {message || "正在加载..."}
-        </motion.p>
+          {message || "Loading..."}
+        </Motion.p>
 
         {progress !== undefined && (
           <div className="loading-progress">
             <div className="progress-bar">
-              <motion.div
+              <Motion.div
                 className="progress-fill"
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(progress, 100)}%` }}
@@ -89,7 +81,7 @@ export default function LoadingScreen({
             ))}
           </div>
         )}
-      </motion.div>
+      </Motion.div>
     </div>
   );
 }
