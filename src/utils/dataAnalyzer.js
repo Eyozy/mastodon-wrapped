@@ -8,11 +8,29 @@
  * Get local date string (YYYY-MM-DD) from a Date object
  * Uses local timezone to match user's perceived posting time
  */
-function getLocalDateString(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+function getDateString(date, timezoneMode = 'local') {
+    const year = timezoneMode === 'utc' ? date.getUTCFullYear() : date.getFullYear();
+    const monthIndex = timezoneMode === 'utc' ? date.getUTCMonth() : date.getMonth();
+    const dayOfMonth = timezoneMode === 'utc' ? date.getUTCDate() : date.getDate();
+    const month = String(monthIndex + 1).padStart(2, '0');
+    const day = String(dayOfMonth).padStart(2, '0');
     return `${year}-${month}-${day}`;
+}
+
+function getYearNumber(date, timezoneMode = 'local') {
+    return timezoneMode === 'utc' ? date.getUTCFullYear() : date.getFullYear();
+}
+
+function getMonthIndex(date, timezoneMode = 'local') {
+    return timezoneMode === 'utc' ? date.getUTCMonth() : date.getMonth();
+}
+
+function getHourNumber(date, timezoneMode = 'local') {
+    return timezoneMode === 'utc' ? date.getUTCHours() : date.getHours();
+}
+
+function getWeekdayNumber(date, timezoneMode = 'local') {
+    return timezoneMode === 'utc' ? date.getUTCDay() : date.getDay();
 }
 
 /**
@@ -22,40 +40,54 @@ function getLocalDateString(date) {
  * @param {string} lang - Language code ('en' or 'zh')
  * @param {number} [year] - Year to analyze (defaults to current local year)
  */
-export function analyzeStatuses(statuses, account, lang = 'en', year) {
+export function analyzeStatuses(statuses, account, lang = 'en', year, timezoneMode = 'local') {
     if (!statuses || statuses.length === 0) {
         return null;
     }
 
     const targetYear = year || new Date().getFullYear();
 
-    // Filter statuses by LOCAL year to match user's perceived time
+    // Filter statuses by selected timezone year
     const yearStatuses = statuses.filter(s => {
         const d = new Date(s.created_at);
-        return d.getFullYear() === targetYear;
+        return getYearNumber(d, timezoneMode) === targetYear;
     });
 
-    const totalPosts = yearStatuses.length;
+    // Publish scope (as requested): originals (text+media) + boosts (reblogs), excluding replies
+    const publishedStatuses = yearStatuses.filter(s => !s.in_reply_to_id);
+    const originalStatuses = publishedStatuses.filter(s => !s.reblog);
+    const boostStatuses = publishedStatuses.filter(s => s.reblog);
+
+    // Calculate total published posts (originals + boosts, excluding replies)
+    const totalPosts = originalStatuses.length + boostStatuses.length;
     if (totalPosts === 0) return null;
 
-    const myOriginalPosts = yearStatuses.filter(s => !s.reblog);
-    const originalPosts = myOriginalPosts.length;
-    const reblogs = yearStatuses.filter(s => s.reblog).length;
-    const replies = yearStatuses.filter(s => s.in_reply_to_id).length;
-    const mediaPosts = myOriginalPosts.filter(s => s.media_attachments?.length > 0).length;
-    const textPosts = myOriginalPosts.length - mediaPosts;
+    // Three mutually exclusive categories
+    const reblogs = boostStatuses.length;
+    const replies = yearStatuses.filter(s => s.in_reply_to_id && !s.reblog).length;
+    const originalPosts = originalStatuses.length;
 
-    const totalFavorites = myOriginalPosts.reduce((sum, s) => sum + (s.favourites_count || 0), 0);
-    const totalReblogs = myOriginalPosts.reduce((sum, s) => sum + (s.reblogs_count || 0), 0);
-    const totalReplies = myOriginalPosts.reduce((sum, s) => sum + (s.replies_count || 0), 0);
+    // Breakdown of originals (excluding replies)
+    const originalWithMedia = originalStatuses.filter(s => s.media_attachments?.length > 0);
+    const mediaPosts = originalWithMedia.length;
+    const textPosts = originalPosts - mediaPosts;
 
-    const longestStreak = calculateLongestStreak(yearStatuses);
+    // Engagement scope (per your requirement):
+    // - Likes should NOT include likes of the boosted (original) status content.
+    // - Mastodon treats favoriting a boost as favoriting the original, so boosts don't have their own "likes received" signal.
+    // Therefore we only count likes received for statuses authored by the user (originalStatuses).
+    const totalFavorites = originalStatuses.reduce((sum, s) => sum + (s.favourites_count || 0), 0);
+    // Keep these as "received by your authored posts" metrics (originalStatuses) to avoid attributing other people's content.
+    const totalReblogs = originalStatuses.reduce((sum, s) => sum + (s.reblogs_count || 0), 0);
+    const totalReplies = originalStatuses.reduce((sum, s) => sum + (s.replies_count || 0), 0);
+
+    const longestStreak = calculateLongestStreak(publishedStatuses, timezoneMode);
     const socialImpactScore = Math.floor(
         (totalReblogs * 2) + totalFavorites + (totalPosts * 0.1) + (longestStreak * 5)
     );
 
     const persona = determinePersona(yearStatuses.length, originalPosts, reblogs, replies, lang);
-    const chronotype = determineChronotype(yearStatuses, lang);
+    const chronotype = determineChronotype(publishedStatuses, lang, timezoneMode);
 
     const contentLabels = {
         en: { text: 'Text', reblogs: 'Boosts', media: 'Media' },
@@ -69,12 +101,13 @@ export function analyzeStatuses(statuses, account, lang = 'en', year) {
         { name: labels.media, value: mediaPosts, color: '#f59e0b' },
     ].filter(item => item.value > 0);
 
-    const monthlyPosts = getMonthlyDistribution(yearStatuses, lang);
-    const hourlyPosts = getHourlyDistribution(yearStatuses);
-    const weekdayPosts = getWeekdayDistribution(yearStatuses, lang);
-    const hashtags = getHashtagStats(yearStatuses);
-    const activityCalendar = getActivityCalendar(yearStatuses);
-    const mostActiveDay = getMostActiveDay(yearStatuses);
+    const monthlyPosts = getMonthlyDistribution(publishedStatuses, lang, timezoneMode);
+    const hourlyPosts = getHourlyDistribution(publishedStatuses, timezoneMode);
+    const weekdayPosts = getWeekdayDistribution(publishedStatuses, lang, timezoneMode);
+    // Hashtags should reflect what the user authored, not what they boosted
+    const hashtags = getHashtagStats(yearStatuses.filter(s => !s.reblog));
+    const activityCalendar = getActivityCalendar(publishedStatuses, timezoneMode);
+    const mostActiveDay = getMostActiveDay(publishedStatuses, timezoneMode);
     const busiestHour = hourlyPosts.reduce((max, curr) => curr.count > max.count ? curr : max, { count: -1, hour: 0 });
     const mostActiveMonth = monthlyPosts.reduce((max, curr) => curr.count > max.count ? curr : max, { count: -1, name: '-' });
 
@@ -84,7 +117,6 @@ export function analyzeStatuses(statuses, account, lang = 'en', year) {
         totalPosts,
         originalPosts,
         reblogs,
-        replies,
         mediaPosts,
         textPosts,
         socialImpactScore,
@@ -94,7 +126,7 @@ export function analyzeStatuses(statuses, account, lang = 'en', year) {
         totalFavorites,
         totalReblogs,
         totalReplies,
-        avgFavoritesPerPost: myOriginalPosts.length > 0 ? Math.round(totalFavorites / myOriginalPosts.length) : 0,
+        avgFavoritesPerPost: totalPosts > 0 ? Math.round(totalFavorites / totalPosts) : 0,
         monthlyPosts,
         hourlyPosts,
         weekdayPosts,
@@ -106,6 +138,7 @@ export function analyzeStatuses(statuses, account, lang = 'en', year) {
         longestStreak,
         mostActiveDay,
         dateRange: { start: new Date(targetYear, 0, 1), end: new Date() },
+        timezoneMode,
     };
 }
 
@@ -124,23 +157,18 @@ function determinePersona(total, original, reblogs, replies, lang = 'en') {
             ? { name: '策展人', desc: '你热衷于分享他人的精彩内容，是优质的信息过滤器。' }
             : { name: 'The Curator', desc: 'You love sharing others\' great content and are a quality information filter.' };
     }
-    if (replies / total > 0.5) {
-        return lang === 'zh'
-            ? { name: '社交达人', desc: '你活跃在评论区，是连接社区的纽带。' }
-            : { name: 'The Socialite', desc: 'You are active in comments and connect the community.' };
-    }
 
     return lang === 'zh'
-        ? { name: '平衡大师', desc: '你的原创、转发和回复比例很均衡，是社区的中坚力量。' }
-        : { name: 'The Balancer', desc: 'Your balance of original posts, boosts, and replies makes you the backbone of the community.' };
+        ? { name: '平衡大师', desc: '你的原创和转发比例很均衡，是社区的中坚力量。' }
+        : { name: 'The Balancer', desc: 'Your balance of original posts and boosts makes you the backbone of the community.' };
 }
 
-function determineChronotype(statuses, lang = 'en') {
+function determineChronotype(statuses, lang = 'en', timezoneMode = 'local') {
     if (statuses.length === 0) {
         return lang === 'zh' ? { name: '生活家', desc: '作息规律' } : { name: 'The Regular', desc: 'Regular schedule' };
     }
 
-    const hours = statuses.map(s => new Date(s.created_at).getHours());
+    const hours = statuses.map(s => getHourNumber(new Date(s.created_at), timezoneMode));
     const total = hours.length;
 
     const nightCount = hours.filter(h => h >= 0 && h < 5).length;
@@ -168,7 +196,7 @@ function determineChronotype(statuses, lang = 'en') {
         : { name: 'The Regular', desc: 'Regular schedule, mainly active in your free time.' };
 }
 
-function getMonthlyDistribution(statuses, lang = 'en') {
+function getMonthlyDistribution(statuses, lang = 'en', timezoneMode = 'local') {
     const monthNames = {
         en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         zh: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
@@ -178,14 +206,14 @@ function getMonthlyDistribution(statuses, lang = 'en') {
     const months = names.map((name, i) => ({ name, month: i + 1, count: 0 }));
 
     statuses.forEach(status => {
-        const month = new Date(status.created_at).getMonth();
+        const month = getMonthIndex(new Date(status.created_at), timezoneMode);
         months[month].count++;
     });
 
     return months;
 }
 
-function getHourlyDistribution(statuses) {
+function getHourlyDistribution(statuses, timezoneMode = 'local') {
     const hours = Array(24).fill(0).map((_, i) => ({
         hour: i,
         label: `${i}:00`,
@@ -193,14 +221,14 @@ function getHourlyDistribution(statuses) {
     }));
 
     statuses.forEach(status => {
-        const hour = new Date(status.created_at).getHours();
+        const hour = getHourNumber(new Date(status.created_at), timezoneMode);
         hours[hour].count++;
     });
 
     return hours;
 }
 
-function getWeekdayDistribution(statuses, lang = 'en') {
+function getWeekdayDistribution(statuses, lang = 'en', timezoneMode = 'local') {
     const dayNames = {
         en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         zh: ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
@@ -209,7 +237,7 @@ function getWeekdayDistribution(statuses, lang = 'en') {
     const days = names.map((name, i) => ({ name, day: i, count: 0 }));
 
     statuses.forEach(status => {
-        const day = new Date(status.created_at).getDay();
+        const day = getWeekdayNumber(new Date(status.created_at), timezoneMode);
         days[day].count++;
     });
 
@@ -231,29 +259,40 @@ function getHashtagStats(statuses) {
         .sort((a, b) => b.count - a.count);
 }
 
-function getActivityCalendar(statuses) {
+function getActivityCalendar(statuses, timezoneMode = 'local') {
     const calendar = {};
     statuses.forEach(status => {
-        const date = getLocalDateString(new Date(status.created_at));
+        const date = getDateString(new Date(status.created_at), timezoneMode);
         calendar[date] = (calendar[date] || 0) + 1;
     });
     return calendar;
 }
 
-function calculateLongestStreak(statuses) {
+function calculateLongestStreak(statuses, timezoneMode = 'local') {
     if (statuses.length === 0) return 0;
 
     const dates = new Set(
-        statuses.map(s => getLocalDateString(new Date(s.created_at)))
+        statuses.map(s => getDateString(new Date(s.created_at), timezoneMode))
     );
     const sortedDates = Array.from(dates).sort();
+
+    const parseYmdToLocalNoon = (ymd) => {
+        const [y, m, d] = String(ymd || '').split('-').map(n => Number(n));
+        if (!y || !m || !d) return null;
+        const date = new Date(y, m - 1, d, 12, 0, 0, 0);
+        return Number.isNaN(date.getTime()) ? null : date;
+    };
 
     let maxStreak = 1;
     let currentStreak = 1;
 
     for (let i = 1; i < sortedDates.length; i++) {
-        const prevDate = new Date(sortedDates[i - 1]);
-        const currDate = new Date(sortedDates[i]);
+        const prevDate = parseYmdToLocalNoon(sortedDates[i - 1]);
+        const currDate = parseYmdToLocalNoon(sortedDates[i]);
+        if (!prevDate || !currDate) {
+            currentStreak = 1;
+            continue;
+        }
         const diffDays = Math.round((currDate - prevDate) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 1) {
@@ -267,11 +306,11 @@ function calculateLongestStreak(statuses) {
     return maxStreak;
 }
 
-function getMostActiveDay(statuses) {
+function getMostActiveDay(statuses, timezoneMode = 'local') {
     const dayCounts = {};
 
     statuses.forEach(status => {
-        const date = getLocalDateString(new Date(status.created_at));
+        const date = getDateString(new Date(status.created_at), timezoneMode);
         dayCounts[date] = (dayCounts[date] || 0) + 1;
     });
 
@@ -376,7 +415,7 @@ export function emojifyDisplayName(displayName, emojis) {
                 console.warn('Non-HTTPS emoji URL:', emojiUrl);
                 continue;
             }
-        } catch (_error) {
+        } catch {
             console.warn('Invalid emoji URL format:', emojiUrl);
             continue;
         }
@@ -392,4 +431,3 @@ export function emojifyDisplayName(displayName, emojis) {
 
     return result;
 }
-

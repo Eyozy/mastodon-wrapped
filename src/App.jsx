@@ -4,6 +4,7 @@ import {
   getDefaultYear,
   lookupAccount,
   getAvailableYears,
+  getAvailableYearsFromAccount,
   parseHandle,
 } from "./services/mastodonApi";
 import { analyzeStatuses } from "./utils/dataAnalyzer";
@@ -29,6 +30,8 @@ function App() {
   const [error, setError] = useState("");
   const [selectedYear, setSelectedYear] = useState(getDefaultYear());
   const [availableYears, setAvailableYears] = useState([]);
+  const [timezoneMode, setTimezoneMode] = useState("local"); // 'local' | 'utc'
+  const [currentHandle, setCurrentHandle] = useState("");
 
   // Ref to hold the current AbortController for request cancellation
   const abortControllerRef = useRef(null);
@@ -36,7 +39,11 @@ function App() {
   const t = (key, params) => getTranslation(lang, key, params);
   const toggleLanguage = () => setLang((prev) => (prev === "en" ? "zh" : "en"));
 
-  const handleFetchStats = async (handle, yearOverride) => {
+  const handleFetchStats = async (handle, yearOverride, timezoneOverride) => {
+    const tz = timezoneOverride || timezoneMode;
+    setTimezoneMode(tz);
+    setCurrentHandle(handle);
+
     // Cancel any in-flight request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -76,12 +83,15 @@ function App() {
       );
       setLoadingProgress(12);
 
-      // Get available years from user's posts
-      const { years, defaultYear } = await getAvailableYears(
-        instance,
-        account.id,
-        controller.signal
-      );
+      // Get years from account registration date (fallback to recent-post inference if unavailable)
+      let yearsInfo = null;
+      if (account?.created_at) {
+        yearsInfo = getAvailableYearsFromAccount(account);
+      } else {
+        yearsInfo = await getAvailableYears(instance, account.id, controller.signal);
+      }
+
+      const { years, defaultYear } = yearsInfo;
       setAvailableYears(years);
       setLoadingProgress(15);
 
@@ -102,7 +112,8 @@ function App() {
         },
         lang,
         controller.signal,
-        targetYear
+        targetYear,
+        tz
       );
 
       setLoadingMessage(t("analyzing"));
@@ -113,7 +124,8 @@ function App() {
         data.statuses,
         data.account,
         lang,
-        targetYear
+        targetYear,
+        tz
       );
       if (!analysisResult) {
         throw new Error(
@@ -142,11 +154,25 @@ function App() {
       );
       setAppState("landing");
     } finally {
-      // Clean up abort controller reference to prevent memory leaks
-      // and ensure next request starts with a fresh controller
-      if (abortControllerRef.current?.signal.aborted) {
+      // Clean up abort controller reference for this specific request
+      // This ensures proper cleanup whether the request completed, failed, or was aborted
+      if (abortControllerRef.current === controller) {
         abortControllerRef.current = null;
       }
+    }
+  };
+
+  // Safely extract handle from stats for year/timezone switching
+  const getHandleFromStats = () => {
+    if (currentHandle) return currentHandle;
+    if (!stats?.account) return "";
+    try {
+      const url = new URL(stats.account.url);
+      return `${stats.account.acct}@${url.hostname}`;
+    } catch {
+      // Fallback to split method if URL parsing fails
+      const hostPart = stats.account.url?.split("/")[2];
+      return hostPart ? `${stats.account.acct}@${hostPart}` : "";
     }
   };
 
@@ -187,7 +213,6 @@ function App() {
               loadingMessage={loadingMessage}
               loadingProgress={loadingProgress}
               error={appState === "landing" ? error : ""}
-              lang={lang}
               t={t}
             />
           )}
@@ -196,15 +221,14 @@ function App() {
             <StatsDisplay
               stats={stats}
               onReset={handleReset}
-              lang={lang}
               t={t}
               availableYears={availableYears}
-              selectedYear={selectedYear}
+              timezoneMode={timezoneMode}
               onYearChange={(year) =>
-                handleFetchStats(
-                  stats.account.acct + "@" + stats.account.url.split("/")[2],
-                  year
-                )
+                handleFetchStats(getHandleFromStats(), year, timezoneMode)
+              }
+              onTimezoneChange={(tz) =>
+                handleFetchStats(getHandleFromStats(), selectedYear, tz)
               }
             />
           )}

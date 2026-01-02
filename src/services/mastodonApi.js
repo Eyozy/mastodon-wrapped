@@ -221,11 +221,14 @@ export async function getAccountStatuses(instance, accountId, options = {}) {
  * @param {number} year - The year to fetch statuses for
  * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  */
-export async function fetchYearStatuses(instance, accountId, onProgress, signal, year) {
+export async function fetchYearStatuses(instance, accountId, onProgress, signal, year, timezoneMode = 'local') {
   const targetYear = year || new Date().getFullYear();
-  // Use LOCAL dates to match user's perceived time
-  const startOfYear = new Date(targetYear, 0, 1, 0, 0, 0, 0);
-  const endOfYear = new Date(targetYear, 11, 31, 23, 59, 59, 999);
+  const startOfYear = timezoneMode === 'utc'
+    ? new Date(Date.UTC(targetYear, 0, 1, 0, 0, 0, 0))
+    : new Date(targetYear, 0, 1, 0, 0, 0, 0);
+  const endOfYear = timezoneMode === 'utc'
+    ? new Date(Date.UTC(targetYear, 11, 31, 23, 59, 59, 999))
+    : new Date(targetYear, 11, 31, 23, 59, 59, 999);
 
   let allStatuses = [];
   let maxId = null;
@@ -270,7 +273,8 @@ export async function fetchYearStatuses(instance, accountId, onProgress, signal,
       hasMore = false;
     }
 
-    allStatuses = [...allStatuses, ...relevantStatuses];
+    // Use push instead of spread to avoid O(n²) memory allocation
+    allStatuses.push(...relevantStatuses);
     maxId = statuses[statuses.length - 1].id;
     fetchCount++;
 
@@ -280,8 +284,9 @@ export async function fetchYearStatuses(instance, accountId, onProgress, signal,
 
     if (!hasMore) break;
 
-    // Rate limiting delay
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // Reduced rate limiting delay (50ms instead of 200ms)
+    // Most Mastodon instances allow ~300 requests/5min, so 50ms is safe
+    await new Promise(resolve => setTimeout(resolve, 50));
   }
 
   return allStatuses;
@@ -289,10 +294,10 @@ export async function fetchYearStatuses(instance, accountId, onProgress, signal,
 
 /**
  * Main function to get user data for the wrapped experience
- * @param {number} [year] - The year to fetch data for (defaults to smart selection)
+ * @param {number} [year] - The year to fetch data for
  * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  */
-export async function getUserData(handle, onProgress, lang = 'en', signal, year) {
+export async function getUserData(handle, onProgress, lang = 'en', signal, year, timezoneMode = 'local') {
   const parsed = parseHandle(handle);
 
   if (!parsed) {
@@ -318,26 +323,43 @@ export async function getUserData(handle, onProgress, lang = 'en', signal, year)
       onProgress(progressMsg);
       onProgress(current);
     }
-  }, signal, year);
+  }, signal, year, timezoneMode);
 
-  return { account, statuses, instance, year };
+  return { account, statuses, instance, year, timezoneMode };
 }
 
 /**
  * Get the default year to display based on current date
- * If we're in Jan-Feb, default to previous year (more complete data)
- * Otherwise default to current year
+ * Default to current year (as requested).
  */
 export function getDefaultYear() {
-  const now = new Date();
-  const currentMonth = now.getMonth(); // 0-11, local time
-  const currentYear = now.getFullYear();
+  return new Date().getFullYear();
+}
 
-  // If January (0) or February (1), default to previous year
-  if (currentMonth <= 1) {
-    return currentYear - 1;
+function clampYear(year, min, max) {
+  return Math.min(Math.max(year, min), max);
+}
+
+/**
+ * Get available years from account info (from registration year to current year).
+ * This avoids missing older years when the user has few recent posts.
+ */
+export function getAvailableYearsFromAccount(account) {
+  const currentYear = new Date().getFullYear();
+  const createdAt = account?.created_at ? new Date(account.created_at) : null;
+  const createdYear =
+    createdAt && !Number.isNaN(createdAt.getTime())
+      ? createdAt.getFullYear()
+      : currentYear;
+
+  const startYear = Math.min(createdYear, currentYear);
+  const years = [];
+  for (let y = currentYear; y >= startYear; y--) {
+    years.push(y);
   }
-  return currentYear;
+
+  const defaultYear = clampYear(getDefaultYear(), startYear, currentYear);
+  return { years, defaultYear };
 }
 
 /**

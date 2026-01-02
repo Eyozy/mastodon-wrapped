@@ -44,6 +44,9 @@ export const translations = {
         longest_streak: "Streak",
         avg_favorites: "Avg Likes",
         days: "days",
+        timezone_label: "Timezone",
+        timezone_local: "Local",
+        timezone_utc: "UTC",
 
         // Charts
         trend_title: "Posting Trend",
@@ -128,6 +131,9 @@ export const translations = {
         longest_streak: "连更",
         avg_favorites: "均赞",
         days: "天",
+        timezone_label: "统计时区",
+        timezone_local: "本地",
+        timezone_utc: "UTC",
 
         // Charts
         trend_title: "发布趋势",
