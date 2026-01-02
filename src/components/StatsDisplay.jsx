@@ -2,24 +2,14 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   formatNumber,
-  formatDate,
-  stripHtml,
   emojifyDisplayName,
 } from "../utils/dataAnalyzer";
 import { downloadReportAsImage } from "../utils/imageDownloader";
 import {
-  BarChart,
-  Bar,
   LineChart,
   Line,
-  XAxis,
-  YAxis,
   Tooltip,
   ResponsiveContainer,
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  Legend,
   AreaChart,
   Area,
 } from "recharts";
@@ -48,11 +38,11 @@ import ActivityHeatmap from "./ActivityHeatmap";
 export default function StatsDisplay({
   stats,
   onReset,
-  lang,
   t,
   availableYears = [],
-  selectedYear,
+  timezoneMode = "local",
   onYearChange,
+  onTimezoneChange,
 }) {
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -73,6 +63,16 @@ export default function StatsDisplay({
   // Early return after hooks to comply with Rules of Hooks
   if (!stats) return null;
 
+  const formatUtcOffset = (offsetMinutes) => {
+    const sign = offsetMinutes >= 0 ? "+" : "-";
+    const abs = Math.abs(offsetMinutes);
+    const hh = String(Math.floor(abs / 60)).padStart(2, "0");
+    const mm = String(abs % 60).padStart(2, "0");
+    return `UTC${sign}${hh}:${mm}`;
+  };
+
+  const localOffsetMinutes = -new Date().getTimezoneOffset();
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -89,7 +89,7 @@ export default function StatsDisplay({
       const filename = `mastodon-wrapped-${stats.account.acct}-${year}.png`;
 
       await downloadReportAsImage("stats-container", filename);
-    } catch (error) {
+    } catch {
       alert(t("error_download"));
     } finally {
       setIsDownloading(false);
@@ -156,7 +156,7 @@ export default function StatsDisplay({
               src={stats.account.avatar}
               alt={`${
                 stats.account.display_name || stats.account.username
-              } 的头像`}
+              }'s avatar`}
               className="user-avatar"
               loading="lazy"
             />
@@ -174,23 +174,41 @@ export default function StatsDisplay({
             </div>
           </div>
           <h2 className="stats-title">
-            {t("report_title", { year: stats.year })}
-            {availableYears.length > 1 && (
-              <span className="year-selector">
-                {availableYears.map((year) => (
-                  <button
-                    key={year}
-                    className={`year-btn ${
-                      year === stats.year ? "active" : ""
-                    }`}
-                    onClick={() => onYearChange && onYearChange(year)}
-                    disabled={year === stats.year}
-                  >
-                    {year}
-                  </button>
-                ))}
+            <span className="stats-title-text">
+              {t("report_title", { year: stats.year })}
+            </span>
+            <span className="stats-controls-row">
+              {availableYears.length > 1 && (
+                <span className="year-selector">
+                  {availableYears.map((year) => (
+                    <button
+                      key={year}
+                      className={`year-btn ${
+                        year === stats.year ? "active" : ""
+                      }`}
+                      onClick={() => onYearChange && onYearChange(year)}
+                      disabled={year === stats.year}
+                    >
+                      {year}
+                    </button>
+                  ))}
+                </span>
+              )}
+
+              <span className="timezone-selector">
+                <span className="timezone-label">{t("timezone_label")}</span>
+                <select
+                  className="timezone-select"
+                  value={timezoneMode}
+                  onChange={(e) => onTimezoneChange?.(e.target.value)}
+                >
+                  <option value="local">
+                    {t("timezone_local")} ({formatUtcOffset(localOffsetMinutes)})
+                  </option>
+                  <option value="utc">{t("timezone_utc")}</option>
+                </select>
               </span>
-            )}
+            </span>
           </h2>
         </motion.header>
 
@@ -299,7 +317,7 @@ export default function StatsDisplay({
               </div>
             </div>
 
-            {/* 7. Boosts Received (Reblogs) */}
+            {/* 7. Boosts (Reblogs) */}
             <div className="grid-card">
               <div className="card-icon">
                 <RepeatIcon style={{ color: "#10b981" }} />
@@ -307,7 +325,7 @@ export default function StatsDisplay({
               <div className="card-content">
                 <span className="card-label">{t("reblogs_received")}</span>
                 <span className="card-value" style={{ color: "#10b981" }}>
-                  {formatNumber(stats.totalReblogs)}
+                  {formatNumber(stats.reblogs)}
                 </span>
               </div>
             </div>
@@ -558,8 +576,7 @@ export default function StatsDisplay({
         {/* Footer */}
         <motion.footer className="stats-footer" variants={itemVariants}>
           <p className="footer-note">
-            {t("footer_copyright", { year: stats.year })} • {t("generated_at")}{" "}
-            {new Date().toLocaleDateString()}
+            Mastodon Wrapped • {t("generated_at")} {new Date().toLocaleDateString()}
           </p>
         </motion.footer>
       </motion.div>

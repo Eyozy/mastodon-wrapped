@@ -131,9 +131,53 @@
   margin-bottom: 0;
 }
 
+.stats-title-text {
+  text-align: center;
+}
+
+.stats-controls-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .year-selector {
   display: inline-flex;
   gap: 0.5rem;
+}
+
+.timezone-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.timezone-label {
+  font-weight: 500;
+  color: #64748b;
+}
+
+.timezone-select {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.8);
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timezone-select:hover {
+  background: #f1f5f9;
+  border-color: #8b5cf6;
+  color: #8b5cf6;
 }
 
 .year-btn {
@@ -322,9 +366,13 @@
 }
 
 .header-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .stat-unit {
@@ -409,6 +457,42 @@
   padding-top: var(--spacing-md);
   color: var(--text-muted);
   font-size: 0.875rem;
+}
+
+.hover-underline {
+  position: relative;
+  text-decoration: none;
+  color: #64748b;
+  font-weight: 500;
+  display: inline-block;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.hover-underline:hover {
+  color: #3b82f6;
+}
+
+.hover-underline::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1.5px;
+  bottom: -2px;
+  left: 0;
+  background-color: currentColor;
+  transform-origin: bottom right;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.footer-sep {
+  opacity: 0.5;
 }
 
 @keyframes spin {
@@ -612,4 +696,18 @@
   .card-value {
     font-size: 0.8rem;
   }
+}
+
+/* --- Download Mode Overrides --- */
+.download-mode.stats-container {
+  padding-bottom: var(--spacing-md) !important;
+}
+
+.download-mode .chart-section {
+  margin-bottom: var(--spacing-md) !important;
+}
+
+.download-mode .stats-footer {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
 }
