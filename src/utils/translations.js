@@ -4,7 +4,7 @@ export const translations = {
         title: "{year} Mastodon Wrapped",
         subtitle: "Review your Mastodon activity for {year}",
         subtitle_auto: "Review your annual Mastodon activity",
-        placeholder: "Enter your Mastodon handle (e.g. user@instance.social)",
+        placeholder: "Enter your Mastodon handle",
         helper: "Example: Gargron@mastodon.social",
         cta: "Get Wrapped",
         loading: "Loading...",
