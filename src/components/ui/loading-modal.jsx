@@ -8,6 +8,7 @@ export function LoadingModal({
   progress = 0,
   message = "Loading...",
   t,
+  onCancel,
 }) {
   if (!isOpen) return null;
 
@@ -49,6 +50,16 @@ export function LoadingModal({
         <p className="mt-4 text-xs font-medium text-slate-400">
           {t ? t("local_processing") : "数据仅在本地浏览器处理"}
         </p>
+
+        {/* Cancel Button */}
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="mt-6 px-6 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
+          >
+            {t ? t("cancel") : "取消"}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   getAvailableYears,
   getAvailableYearsFromAccount,
   parseHandle,
+  getCachedUserData,
 } from "./services/mastodonApi";
 import { analyzeStatuses } from "./utils/dataAnalyzer";
 import { getTranslation } from "./utils/translations";
@@ -100,21 +101,32 @@ function App() {
         yearOverride !== undefined ? yearOverride : defaultYear;
       setSelectedYear(targetYear);
 
-      const data = await getUserData(
-        handle,
-        (msg) => {
-          if (typeof msg === "string") {
-            setLoadingMessage(msg);
-          } else if (typeof msg === "number") {
-            const progress = Math.min(15 + (msg / 50) * 0.6, 75);
-            setLoadingProgress(Math.round(progress));
-          }
-        },
-        lang,
-        controller.signal,
-        targetYear,
-        tz
-      );
+      // Check cache first for instant year/timezone switching
+      const cachedData = getCachedUserData(handle, targetYear, tz);
+      let data;
+
+      if (cachedData) {
+        // Use cached data - skip API calls
+        data = cachedData;
+      } else {
+        // Fetch from API
+        data = await getUserData(
+          handle,
+          (msg) => {
+            if (typeof msg === "string") {
+              setLoadingMessage(msg);
+            } else if (typeof msg === "number") {
+              const progress = Math.min(15 + (msg / 50) * 0.6, 75);
+              setLoadingProgress(Math.round(progress));
+            }
+          },
+          lang,
+          controller.signal,
+          targetYear,
+          tz,
+          account // Pass preloaded account to avoid duplicate API call
+        );
+      }
 
       setLoadingMessage(t("analyzing"));
       setLoadingProgress(80);
@@ -145,6 +157,9 @@ function App() {
     } catch (err) {
       // Ignore abort errors - they're intentional cancellations
       if (err.name === "AbortError") {
+        // Reset loading state to prevent UI inconsistency
+        setLoadingProgress(0);
+        setLoadingMessage("");
         return;
       }
 
@@ -184,6 +199,13 @@ function App() {
     setLoadingMessage("");
   };
 
+  const handleCancel = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    setAppState("landing");
+  };
+
   return (
     <ErrorBoundary lang={lang}>
       <Suspense
@@ -214,6 +236,7 @@ function App() {
               loadingProgress={loadingProgress}
               error={appState === "landing" ? error : ""}
               t={t}
+              onCancel={handleCancel}
             />
           )}
 

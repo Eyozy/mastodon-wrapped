@@ -5,6 +5,49 @@
 
 const FETCH_TIMEOUT = 15000; // 15 seconds
 
+// Simple in-memory cache for user data to avoid redundant API calls
+// Key format: "handle:year:timezoneMode"
+const userDataCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Generate cache key for user data
+ */
+function getCacheKey(handle, year, timezoneMode) {
+  return `${handle.toLowerCase()}:${year}:${timezoneMode}`;
+}
+
+/**
+ * Get cached user data if available and not expired
+ */
+export function getCachedUserData(handle, year, timezoneMode) {
+  const key = getCacheKey(handle, year, timezoneMode);
+  const cached = userDataCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  // Remove expired cache
+  if (cached) {
+    userDataCache.delete(key);
+  }
+  return null;
+}
+
+/**
+ * Cache user data
+ */
+function setCachedUserData(handle, year, timezoneMode, data) {
+  const key = getCacheKey(handle, year, timezoneMode);
+  userDataCache.set(key, { data, timestamp: Date.now() });
+}
+
+/**
+ * Clear all cached data (useful for testing or manual refresh)
+ */
+export function clearUserDataCache() {
+  userDataCache.clear();
+}
+
 export const POPULAR_INSTANCES = [
   { name: 'mastodon.social', url: 'https://mastodon.social' },
   { name: 'mastodon.online', url: 'https://mastodon.online' },
@@ -296,8 +339,9 @@ export async function fetchYearStatuses(instance, accountId, onProgress, signal,
  * Main function to get user data for the wrapped experience
  * @param {number} [year] - The year to fetch data for
  * @param {AbortSignal} [signal] - Optional abort signal for cancellation
+ * @param {Object} [preloadedAccount] - Optional pre-fetched account to avoid duplicate API call
  */
-export async function getUserData(handle, onProgress, lang = 'en', signal, year, timezoneMode = 'local') {
+export async function getUserData(handle, onProgress, lang = 'en', signal, year, timezoneMode = 'local', preloadedAccount = null) {
   const parsed = parseHandle(handle);
 
   if (!parsed) {
@@ -309,9 +353,13 @@ export async function getUserData(handle, onProgress, lang = 'en', signal, year,
 
   const { username, instance } = parsed;
 
-  const lookupMsg = lang === 'zh' ? '正在查找用户...' : 'Looking up user...';
-  if (onProgress) onProgress(lookupMsg);
-  const account = await lookupAccount(instance, username, signal);
+  // Use preloaded account if provided, otherwise fetch it
+  let account = preloadedAccount;
+  if (!account) {
+    const lookupMsg = lang === 'zh' ? '正在查找用户...' : 'Looking up user...';
+    if (onProgress) onProgress(lookupMsg);
+    account = await lookupAccount(instance, username, signal);
+  }
 
   const fetchingMsg = lang === 'zh' ? '正在获取嘟文...' : 'Fetching toots...';
   if (onProgress) onProgress(fetchingMsg);
@@ -325,7 +373,12 @@ export async function getUserData(handle, onProgress, lang = 'en', signal, year,
     }
   }, signal, year, timezoneMode);
 
-  return { account, statuses, instance, year, timezoneMode };
+  const result = { account, statuses, instance, year, timezoneMode };
+
+  // Cache the result for future requests (e.g., year/timezone switching)
+  setCachedUserData(handle, year, timezoneMode, result);
+
+  return result;
 }
 
 /**

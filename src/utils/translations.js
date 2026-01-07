@@ -85,6 +85,7 @@ export const translations = {
         // Errors
         error_empty: "Please enter your Mastodon handle",
         error_invalid: "Please enter a valid handle (username@instance)",
+        cancel: "Cancel",
     },
     zh: {
         // Landing Page
@@ -172,6 +173,7 @@ export const translations = {
         // Errors
         error_empty: "请输入你的 Mastodon 账户地址",
         error_invalid: "请输入完整的账户地址，格式：用户名@实例",
+        cancel: "取消",
     }
 };
 

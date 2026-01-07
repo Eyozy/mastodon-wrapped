@@ -11,6 +11,7 @@ export default function LandingPage({
   error: errorProp,
   loadingProgress = 0,
   t,
+  onCancel,
 }) {
   const footerYearRange = `2025 - ${new Date().getFullYear()}`;
 
@@ -171,6 +172,7 @@ export default function LandingPage({
         progress={loadingProgress}
         message={loadingMessage || t("fetching")}
         t={t}
+        onCancel={onCancel}
       />
     </div>
   );
