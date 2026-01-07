@@ -147,6 +147,8 @@
 .year-selector {
   display: inline-flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .timezone-selector {
@@ -695,6 +697,32 @@
 
   .card-value {
     font-size: 0.8rem;
+  }
+
+  .stats-controls-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .year-selector {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .year-btn {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .timezone-selector {
+    width: 100%;
+    font-size: 0.75rem;
+  }
+
+  .timezone-select {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
   }
 }
 

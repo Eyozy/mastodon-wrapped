@@ -87,10 +87,8 @@ export default function StatsDisplay({
       }
     } finally {
       downloadLockRef.current = false;
-      if (isMountedRef.current) {
-        setIsDownloading(false);
-        setIsExporting(false);
-      }
+      setIsDownloading(false);
+      setIsExporting(false);
     }
   };
 
