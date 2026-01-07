@@ -698,16 +698,58 @@
   }
 }
 
-/* --- Download Mode Overrides --- */
-.download-mode.stats-container {
-  padding-bottom: var(--spacing-md) !important;
+/* --- Ghost Export Mode (Force Desktop) --- */
+/* These styles ensure that the hidden export container (900px wide)
+   renders exactly like the desktop view, even if the viewport is mobile width. */
+
+.force-desktop {
+  padding: 3rem 2rem !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
 }
 
-.download-mode .chart-section {
-  margin-bottom: var(--spacing-md) !important;
+.force-desktop .stats-header {
+  margin-bottom: 3rem !important;
 }
 
-.download-mode .stats-footer {
-  padding-top: 0 !important;
-  margin-top: 0 !important;
+.force-desktop .user-name {
+  font-size: 2rem !important;
+}
+
+.force-desktop .user-avatar {
+  width: 100px !important;
+  height: 100px !important;
+}
+
+.force-desktop .stats-grid-container {
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 0.875rem !important;
+}
+
+.force-desktop .charts-summary-section {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 1rem !important;
+}
+
+.force-desktop .grid-card {
+  padding: 0.875rem !important;
+  min-height: 70px !important;
+  gap: 0.625rem !important;
+}
+
+.force-desktop .card-icon {
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 1.1rem !important;
+}
+
+.force-desktop .card-label {
+  font-size: 0.65rem !important;
+}
+
+.force-desktop .card-value {
+  font-size: 1rem !important;
 }
