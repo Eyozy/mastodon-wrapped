@@ -29,10 +29,6 @@ function getHourNumber(date, timezoneMode = 'local') {
     return timezoneMode === 'utc' ? date.getUTCHours() : date.getHours();
 }
 
-function getWeekdayNumber(date, timezoneMode = 'local') {
-    return timezoneMode === 'utc' ? date.getUTCDay() : date.getDay();
-}
-
 /**
  * Analyze all statuses and generate comprehensive statistics
  * @param {Array} statuses - Array of status objects
@@ -103,9 +99,6 @@ export function analyzeStatuses(statuses, account, lang = 'en', year, timezoneMo
 
     const monthlyPosts = getMonthlyDistribution(publishedStatuses, lang, timezoneMode);
     const hourlyPosts = getHourlyDistribution(publishedStatuses, timezoneMode);
-    const weekdayPosts = getWeekdayDistribution(publishedStatuses, lang, timezoneMode);
-    // Hashtags should reflect what the user authored, not what they boosted
-    const hashtags = getHashtagStats(yearStatuses.filter(s => !s.reblog));
     const activityCalendar = getActivityCalendar(publishedStatuses, timezoneMode);
     const mostActiveDay = getMostActiveDay(publishedStatuses, timezoneMode);
     const busiestHour = hourlyPosts.reduce((max, curr) => curr.count > max.count ? curr : max, { count: -1, hour: 0 });
@@ -117,27 +110,19 @@ export function analyzeStatuses(statuses, account, lang = 'en', year, timezoneMo
         totalPosts,
         originalPosts,
         reblogs,
-        mediaPosts,
-        textPosts,
         socialImpactScore,
         persona,
         chronotype,
         contentDistribution,
         totalFavorites,
-        totalReblogs,
-        totalReplies,
         avgFavoritesPerPost: totalPosts > 0 ? Math.round(totalFavorites / totalPosts) : 0,
         monthlyPosts,
         hourlyPosts,
-        weekdayPosts,
         busiestHour,
         mostActiveMonth,
-        topHashtags: hashtags.slice(0, 10),
-        uniqueHashtags: hashtags.length,
         activityCalendar,
         longestStreak,
         mostActiveDay,
-        dateRange: { start: new Date(targetYear, 0, 1), end: new Date() },
         timezoneMode,
     };
 }
@@ -228,36 +213,6 @@ function getHourlyDistribution(statuses, timezoneMode = 'local') {
     return hours;
 }
 
-function getWeekdayDistribution(statuses, lang = 'en', timezoneMode = 'local') {
-    const dayNames = {
-        en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-        zh: ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-    };
-    const names = dayNames[lang] || dayNames.en;
-    const days = names.map((name, i) => ({ name, day: i, count: 0 }));
-
-    statuses.forEach(status => {
-        const day = getWeekdayNumber(new Date(status.created_at), timezoneMode);
-        days[day].count++;
-    });
-
-    return days;
-}
-
-function getHashtagStats(statuses) {
-    const hashtagCounts = {};
-
-    statuses.forEach(status => {
-        status.tags?.forEach(tag => {
-            const name = tag.name.toLowerCase();
-            hashtagCounts[name] = (hashtagCounts[name] || 0) + 1;
-        });
-    });
-
-    return Object.entries(hashtagCounts)
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count);
-}
 
 function getActivityCalendar(statuses, timezoneMode = 'local') {
     const calendar = {};
@@ -337,29 +292,6 @@ export function formatNumber(num) {
 }
 
 /**
- * Format date based on language
- */
-export function formatDate(dateStr, lang = 'en') {
-    const date = new Date(dateStr);
-    if (lang === 'zh') {
-        return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
-    }
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-}
-
-/**
- * Strip HTML tags from content (XSS-safe)
- */
-export function stripHtml(html) {
-    if (!html) return '';
-    return html.replace(/<[^>]*>/g, '');
-}
-
-/**
  * Escape HTML entities to prevent XSS attacks
  * @param {string} str - String to escape
  * @returns {string} Escaped string safe for HTML insertion
@@ -395,28 +327,13 @@ export function emojifyDisplayName(displayName, emojis) {
             continue; // Skip invalid emoji
         }
 
-        // Security: Validate URL protocol - only allow HTTPS
         const emojiUrl = emoji.static_url || emoji.url;
-        if (!emojiUrl || typeof emojiUrl !== 'string') {
-            console.warn('Missing or invalid emoji URL');
-            continue;
-        }
+        if (!emojiUrl || typeof emojiUrl !== 'string') continue;
 
-        // Ensure URL starts with https:// (not javascript:, data:, etc.)
-        if (!emojiUrl.startsWith('https://')) {
-            console.warn('Unsafe emoji URL protocol:', emojiUrl);
-            continue;
-        }
-
-        // Additional URL validation
         try {
-            const url = new URL(emojiUrl);
-            if (url.protocol !== 'https:') {
-                console.warn('Non-HTTPS emoji URL:', emojiUrl);
-                continue;
-            }
+            const parsed = new URL(emojiUrl);
+            if (parsed.protocol !== 'https:') continue;
         } catch {
-            console.warn('Invalid emoji URL format:', emojiUrl);
             continue;
         }
 

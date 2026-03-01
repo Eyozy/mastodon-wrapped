@@ -5,8 +5,43 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+function avatarProxyPlugin() {
+  return {
+    name: 'avatar-proxy',
+    configureServer(server) {
+      server.middlewares.use('/api/avatar-proxy', async (req, res) => {
+        const urlParam = new URL(req.url, 'http://localhost').searchParams.get('url');
+        if (!urlParam) {
+          res.statusCode = 400;
+          res.end('Missing url');
+          return;
+        }
+        try {
+          const upstream = await fetch(urlParam, {
+            headers: { 'User-Agent': 'MastodonWrapped/1.0' },
+          });
+          if (!upstream.ok) {
+            res.statusCode = upstream.status;
+            res.end(`Upstream error: ${upstream.status}`);
+            return;
+          }
+          const contentType = upstream.headers.get('content-type') ?? 'image/jpeg';
+          const buffer = await upstream.arrayBuffer();
+          res.setHeader('Content-Type', contentType);
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.setHeader('Cache-Control', 'public, max-age=86400');
+          res.end(Buffer.from(buffer));
+        } catch (err) {
+          res.statusCode = 500;
+          res.end(String(err));
+        }
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), avatarProxyPlugin()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -17,6 +52,7 @@ export default defineConfig({
       overlay: false,
     },
   },
+
   optimizeDeps: {
     include: [
       'react',

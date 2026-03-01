@@ -222,11 +222,12 @@ export function parseHandle(handle) {
 }
 
 /**
- * Fetch an avatar via CORS proxy and return it as a Base64 DataURL.
- * Falls back to the original URL if all proxies fail.
+ * Fetch an avatar and return it as a Base64 DataURL.
+ * Tries self-hosted proxy first, then falls back to third-party proxies.
  */
 async function avatarToBase64(url) {
   const proxies = [
+    `/api/avatar-proxy?url=${encodeURIComponent(url)}`,
     `https://corsproxy.io/?${encodeURIComponent(url)}`,
     `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   ];
@@ -236,7 +237,9 @@ async function avatarToBase64(url) {
       const res = await fetch(proxyUrl);
       if (!res.ok) continue;
       const blob = await res.blob();
-      const b64 = btoa(new Uint8Array(await blob.arrayBuffer()).reduce((s, b) => s + String.fromCharCode(b), ''));
+      const b64 = btoa(
+        new Uint8Array(await blob.arrayBuffer()).reduce((s, b) => s + String.fromCharCode(b), '')
+      );
       return `data:${blob.type};base64,${b64}`;
     } catch {
       // try next proxy
