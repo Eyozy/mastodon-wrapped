@@ -222,6 +222,31 @@ export function parseHandle(handle) {
 }
 
 /**
+ * Fetch an avatar via CORS proxy and return it as a Base64 DataURL.
+ * Falls back to the original URL if all proxies fail.
+ */
+async function avatarToBase64(url) {
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  ];
+
+  for (const proxyUrl of proxies) {
+    try {
+      const res = await fetch(proxyUrl);
+      if (!res.ok) continue;
+      const blob = await res.blob();
+      const b64 = btoa(new Uint8Array(await blob.arrayBuffer()).reduce((s, b) => s + String.fromCharCode(b), ''));
+      return `data:${blob.type};base64,${b64}`;
+    } catch {
+      // try next proxy
+    }
+  }
+
+  return url;
+}
+
+/**
  * Look up a user by their account name
  * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  */
@@ -359,6 +384,12 @@ export async function getUserData(handle, onProgress, lang = 'en', signal, year,
     const lookupMsg = lang === 'zh' ? '正在查找用户...' : 'Looking up user...';
     if (onProgress) onProgress(lookupMsg);
     account = await lookupAccount(instance, username, signal);
+  }
+
+  // Pre-convert avatar to Base64 so snapdom can inline it without a second
+  // cross-origin fetch (which Mastodon CDN blocks with 403).
+  if (account.avatar) {
+    account = { ...account, avatar: await avatarToBase64(account.avatar) };
   }
 
   const fetchingMsg = lang === 'zh' ? '正在获取嘟文...' : 'Fetching toots...';

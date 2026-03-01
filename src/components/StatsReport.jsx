@@ -47,28 +47,28 @@ export default function StatsReport({
 }) {
   const containerVariants = isExport
     ? {
-        hidden: { opacity: 1 },
-        visible: { opacity: 1 },
-      }
+      hidden: { opacity: 1 },
+      visible: { opacity: 1 },
+    }
     : {
-        hidden: { opacity: 0 },
-        visible: {
-          opacity: 1,
-          transition: {
-            staggerChildren: 0.1,
-          },
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: {
+          staggerChildren: 0.1,
         },
-      };
+      },
+    };
 
   const itemVariants = isExport
     ? {
-        hidden: { opacity: 1, y: 0 },
-        visible: { opacity: 1, y: 0 },
-      }
+      hidden: { opacity: 1, y: 0 },
+      visible: { opacity: 1, y: 0 },
+    }
     : {
-        hidden: { opacity: 0, y: 30 },
-        visible: { opacity: 1, y: 0 },
-      };
+      hidden: { opacity: 0, y: 30 },
+      visible: { opacity: 1, y: 0 },
+    };
 
   return (
     <motion.div
@@ -114,11 +114,9 @@ export default function StatsReport({
         <div className="user-info">
           <img
             src={stats.account.avatar}
-            alt={`${
-              stats.account.display_name || stats.account.username
-            }'s avatar`}
+            alt={`${stats.account.display_name || stats.account.username
+              }'s avatar`}
             className="user-avatar"
-            crossOrigin="anonymous"
             loading={isExport ? "eager" : "lazy"}
             onError={(e) => {
               // Fallback to a default avatar on load failure
@@ -149,9 +147,8 @@ export default function StatsReport({
                 {availableYears.map((year) => (
                   <button
                     key={year}
-                    className={`year-btn ${
-                      year === stats.year ? "active" : ""
-                    }`}
+                    className={`year-btn ${year === stats.year ? "active" : ""
+                      }`}
                     onClick={() => onYearChange && onYearChange(year)}
                     disabled={year === stats.year}
                   >
@@ -199,14 +196,14 @@ export default function StatsReport({
                   {stats.socialImpactScore >= 10000
                     ? "Top 1%"
                     : stats.socialImpactScore >= 5000
-                    ? "Top 5%"
-                    : stats.socialImpactScore >= 1000
-                    ? "Top 15%"
-                    : stats.socialImpactScore >= 500
-                    ? "Top 30%"
-                    : stats.socialImpactScore >= 100
-                    ? "Top 50%"
-                    : "Growing"}
+                      ? "Top 5%"
+                      : stats.socialImpactScore >= 1000
+                        ? "Top 15%"
+                        : stats.socialImpactScore >= 500
+                          ? "Top 30%"
+                          : stats.socialImpactScore >= 100
+                            ? "Top 50%"
+                            : "Growing"}
                 </span>
               </div>
             </div>
@@ -455,9 +452,8 @@ export default function StatsReport({
                   dataKey="count"
                   stroke="#0ea5e9"
                   fillOpacity={1}
-                  fill={`url(#${
-                    isExport ? "colorActivity_export" : "colorActivity"
-                  })`}
+                  fill={`url(#${isExport ? "colorActivity_export" : "colorActivity"
+                    })`}
                   isAnimationActive={!isExport} // Disable animation for export
                 />
                 <Tooltip
