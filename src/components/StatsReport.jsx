@@ -118,6 +118,7 @@ export default function StatsReport({
               stats.account.display_name || stats.account.username
             }'s avatar`}
             className="user-avatar"
+            crossOrigin="anonymous"
             loading={isExport ? "eager" : "lazy"}
             onError={(e) => {
               // Fallback to a default avatar on load failure
