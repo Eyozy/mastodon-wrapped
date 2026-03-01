@@ -114,7 +114,6 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
 
         // If we have retries left, wait and try again
         if (attempt < maxRetries - 1) {
-          console.warn(`Rate limited. Waiting ${waitTime}ms before retry ${attempt + 1}/${maxRetries}`);
           await new Promise(resolve => setTimeout(resolve, waitTime));
           continue;
         } else {
@@ -146,7 +145,6 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
 
       // For network errors, wait and retry
       const waitTime = Math.pow(2, attempt) * 1000;
-      console.warn(`Network error. Retrying in ${waitTime}ms... (${attempt + 1}/${maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
     }
   }
@@ -369,7 +367,7 @@ export async function fetchYearStatuses(instance, accountId, onProgress, signal,
  * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  * @param {Object} [preloadedAccount] - Optional pre-fetched account to avoid duplicate API call
  */
-export async function getUserData(handle, onProgress, lang = 'en', signal, year, timezoneMode = 'local', preloadedAccount = null) {
+export async function getUserData(handle, onMessage, onProgress, lang = 'en', signal, year, timezoneMode = 'local', preloadedAccount = null) {
   const parsed = parseHandle(handle);
 
   if (!parsed) {
@@ -384,8 +382,7 @@ export async function getUserData(handle, onProgress, lang = 'en', signal, year,
   // Use preloaded account if provided, otherwise fetch it
   let account = preloadedAccount;
   if (!account) {
-    const lookupMsg = lang === 'zh' ? '正在查找用户...' : 'Looking up user...';
-    if (onProgress) onProgress(lookupMsg);
+    onMessage?.(lang === 'zh' ? '正在查找用户...' : 'Looking up user...');
     account = await lookupAccount(instance, username, signal);
   }
 
@@ -395,17 +392,12 @@ export async function getUserData(handle, onProgress, lang = 'en', signal, year,
     account = { ...account, avatar: await avatarToBase64(account.avatar) };
   }
 
-  const fetchingMsg = lang === 'zh' ? '正在获取嘟文...' : 'Fetching toots...';
-  if (onProgress) onProgress(fetchingMsg);
+  onMessage?.(lang === 'zh' ? '正在获取嘟文...' : 'Fetching toots...');
   const statuses = await fetchYearStatuses(instance, account.id, (current) => {
-    const progressMsg = lang === 'zh'
-      ? `正在获取嘟文... ${current} 条`
-      : `Fetching toots... ${current} toots`;
-    if (onProgress) {
-      onProgress(progressMsg);
-      onProgress(current);
-    }
+    onMessage?.(lang === 'zh' ? `正在获取嘟文... ${current} 条` : `Fetching toots... ${current} toots`);
+    onProgress?.(current);
   }, signal, year, timezoneMode);
+
 
   const result = { account, statuses, instance, year, timezoneMode };
 
@@ -449,28 +441,3 @@ export function getAvailableYearsFromAccount(account) {
   return { years, defaultYear };
 }
 
-/**
- * Get available years from user's statuses
- * Returns the years that have posts, sorted descending (most recent first)
- * Also returns the recommended default year based on the data
- */
-export async function getAvailableYears(instance, accountId, signal) {
-  // Fetch a small batch of recent statuses to determine available years
-  const statuses = await getAccountStatuses(instance, accountId, {
-    limit: 40,
-    signal,
-  });
-
-  if (statuses.length === 0) {
-    return { years: [new Date().getFullYear()], defaultYear: new Date().getFullYear() };
-  }
-
-  // Get unique years from statuses (using local time)
-  const years = [...new Set(statuses.map(s => new Date(s.created_at).getFullYear()))];
-  years.sort((a, b) => b - a); // Sort descending
-
-  // The default year is the year of the most recent post
-  const mostRecentYear = new Date(statuses[0].created_at).getFullYear();
-
-  return { years, defaultYear: mostRecentYear };
-}

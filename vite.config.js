@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+const PRIVATE_HOST_RE = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.0\.0\.0|::1$|fc00:|fe80:)/i;
+
 function avatarProxyPlugin() {
   return {
     name: 'avatar-proxy',
@@ -14,6 +16,24 @@ function avatarProxyPlugin() {
         if (!urlParam) {
           res.statusCode = 400;
           res.end('Missing url');
+          return;
+        }
+        let parsed;
+        try {
+          parsed = new URL(urlParam);
+        } catch {
+          res.statusCode = 400;
+          res.end('Invalid URL');
+          return;
+        }
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          res.statusCode = 400;
+          res.end('Only http/https URLs are allowed');
+          return;
+        }
+        if (PRIVATE_HOST_RE.test(parsed.hostname)) {
+          res.statusCode = 403;
+          res.end('Forbidden');
           return;
         }
         try {

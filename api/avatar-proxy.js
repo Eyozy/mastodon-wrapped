@@ -1,5 +1,11 @@
 export const config = { runtime: 'edge' };
 
+const PRIVATE_HOST_RE = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.0\.0\.0|::1$|fc00:|fe80:)/i;
+
+function isPrivateHost(hostname) {
+    return PRIVATE_HOST_RE.test(hostname);
+}
+
 export default async function handler(req) {
     const { searchParams } = new URL(req.url);
     const url = searchParams.get('url');
@@ -17,6 +23,10 @@ export default async function handler(req) {
 
     if (!['http:', 'https:'].includes(parsed.protocol)) {
         return new Response('Only http/https URLs are allowed', { status: 400 });
+    }
+
+    if (isPrivateHost(parsed.hostname)) {
+        return new Response('Forbidden', { status: 403 });
     }
 
     const upstream = await fetch(parsed.toString(), {

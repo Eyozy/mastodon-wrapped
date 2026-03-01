@@ -315,17 +315,12 @@ function escapeHtml(str) {
 export function emojifyDisplayName(displayName, emojis) {
     if (!displayName) return '';
 
-    // Escape HTML entities first to prevent XSS attacks
     let result = escapeHtml(displayName);
 
     if (!emojis || emojis.length === 0) return result;
 
     for (const emoji of emojis) {
-        // Security: Validate shortcode format (only alphanumeric and underscores)
-        if (!emoji.shortcode || !/^[a-z0-9_]+$/i.test(emoji.shortcode)) {
-            console.warn('Invalid emoji shortcode:', emoji.shortcode);
-            continue; // Skip invalid emoji
-        }
+        if (!emoji.shortcode || !/^[a-z0-9_]+$/i.test(emoji.shortcode)) continue;
 
         const emojiUrl = emoji.static_url || emoji.url;
         if (!emojiUrl || typeof emojiUrl !== 'string') continue;
@@ -337,13 +332,8 @@ export function emojifyDisplayName(displayName, emojis) {
             continue;
         }
 
-        const escapedShortcode = escapeHtml(emoji.shortcode);
-        const escapedUrl = escapeHtml(emojiUrl);
-        const shortcode = `:${emoji.shortcode}:`;
-
-        // Use escaped URL in img tag
-        const imgTag = `<img src="${escapedUrl}" alt="${escapedShortcode}" class="emoji" draggable="false" loading="lazy" />`;
-        result = result.split(shortcode).join(imgTag);
+        const imgTag = `<img src="${escapeHtml(emojiUrl)}" alt="${escapeHtml(emoji.shortcode)}" class="emoji" draggable="false" loading="lazy" />`;
+        result = result.split(`:${emoji.shortcode}:`).join(imgTag);
     }
 
     return result;

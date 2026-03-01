@@ -3,7 +3,6 @@ import {
   getUserData,
   getDefaultYear,
   lookupAccount,
-  getAvailableYears,
   getAvailableYearsFromAccount,
   parseHandle,
   getCachedUserData,
@@ -112,19 +111,13 @@ function App() {
         // Fetch from API
         data = await getUserData(
           handle,
-          (msg) => {
-            if (typeof msg === "string") {
-              setLoadingMessage(msg);
-            } else if (typeof msg === "number") {
-              const progress = Math.min(15 + (msg / 50) * 0.6, 75);
-              setLoadingProgress(Math.round(progress));
-            }
-          },
+          (msg) => setLoadingMessage(msg),
+          (count) => setLoadingProgress(Math.round(Math.min(15 + (count / 400) * 60, 75))),
           lang,
           controller.signal,
           targetYear,
           tz,
-          account // Pass preloaded account to avoid duplicate API call
+          account
         );
       }
 
@@ -165,7 +158,7 @@ function App() {
 
       setError(
         err.message ||
-          (lang === "zh" ? "获取数据时发生错误" : "Error fetching data")
+        (lang === "zh" ? "获取数据时发生错误" : "Error fetching data")
       );
       setAppState("landing");
     } finally {

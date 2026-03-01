@@ -15,25 +15,12 @@ export async function downloadReportAsImage(elementId, filename, onProgress) {
   onProgress?.('Preparing capture...');
 
   // Inline heatmap SVG colors for reliable PNG export
-  // (Some DOM capture engines can miss CSS-driven SVG styling.)
   targetElement.querySelectorAll('.react-calendar-heatmap rect').forEach((rect) => {
     const style = window.getComputedStyle(rect);
-    const fill = style.fill;
-    const stroke = style.stroke;
-    const strokeWidth = style.strokeWidth;
-
-    if (fill && fill !== 'none') {
-      rect.setAttribute('fill', fill);
-      rect.style.fill = fill;
-    }
-    if (stroke && stroke !== 'none') {
-      rect.setAttribute('stroke', stroke);
-      rect.style.stroke = stroke;
-    }
-    if (strokeWidth) {
-      rect.setAttribute('stroke-width', strokeWidth);
-      rect.style.strokeWidth = strokeWidth;
-    }
+    const { fill, stroke, strokeWidth } = style;
+    if (fill && fill !== 'none') { rect.setAttribute('fill', fill); rect.style.fill = fill; }
+    if (stroke && stroke !== 'none') { rect.setAttribute('stroke', stroke); rect.style.stroke = stroke; }
+    if (strokeWidth) { rect.setAttribute('stroke-width', strokeWidth); rect.style.strokeWidth = strokeWidth; }
   });
 
   await new Promise(resolve => setTimeout(resolve, 50));
@@ -50,3 +37,5 @@ export async function downloadReportAsImage(elementId, filename, onProgress) {
   await result.download({ format: 'png', filename: filename.replace('.png', '') });
   onProgress?.('Complete');
 }
+
+

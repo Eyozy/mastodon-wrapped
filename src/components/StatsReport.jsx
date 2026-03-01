@@ -188,24 +188,9 @@ export default function StatsReport({
             </div>
             <div className="card-content">
               <span className="card-label">{t("impact_score")}</span>
-              <div className="card-value-row">
-                <span className="card-value highlight-text">
-                  {formatNumber(stats.socialImpactScore)}
-                </span>
-                <span className="card-subtext">
-                  {stats.socialImpactScore >= 10000
-                    ? "Top 1%"
-                    : stats.socialImpactScore >= 5000
-                      ? "Top 5%"
-                      : stats.socialImpactScore >= 1000
-                        ? "Top 15%"
-                        : stats.socialImpactScore >= 500
-                          ? "Top 30%"
-                          : stats.socialImpactScore >= 100
-                            ? "Top 50%"
-                            : "Growing"}
-                </span>
-              </div>
+              <span className="card-value highlight-text">
+                {formatNumber(stats.socialImpactScore)}
+              </span>
             </div>
           </div>
 
