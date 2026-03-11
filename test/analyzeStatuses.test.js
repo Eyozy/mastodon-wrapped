@@ -24,21 +24,13 @@ const createStatus = (overrides = {}) => ({
 });
 
 describe('analyzeStatuses', () => {
-  const analyze = (statuses, options) =>
-    analyzeStatuses(statuses, { account: mockAccount, ...options });
-
-  it('returns null when account is missing', () => {
-    const statuses = [createStatus()];
-    expect(analyzeStatuses(statuses, { lang: 'en', year: 2024 })).toBeNull();
-  });
-
   it('returns null for empty statuses', () => {
-    expect(analyze([], { lang: 'en', year: 2024 })).toBeNull();
+    expect(analyzeStatuses([], mockAccount, 'en', 2024)).toBeNull();
   });
 
   it('returns null for statuses outside target year', () => {
     const statuses = [createStatus({ created_at: '2023-06-15T12:00:00.000Z' })];
-    expect(analyze(statuses, { lang: 'en', year: 2024 })).toBeNull();
+    expect(analyzeStatuses(statuses, mockAccount, 'en', 2024)).toBeNull();
   });
 
   it('calculates total posts correctly', () => {
@@ -47,7 +39,7 @@ describe('analyzeStatuses', () => {
       createStatus({ id: '2', created_at: '2024-02-15T12:00:00.000Z' }),
       createStatus({ id: '3', created_at: '2024-03-15T12:00:00.000Z' }),
     ];
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.totalPosts).toBe(3);
   });
 
@@ -58,7 +50,7 @@ describe('analyzeStatuses', () => {
       createStatus({ id: '3', reblog: { id: 'r1' } }), // reblog
       createStatus({ id: '4', reblog: { id: 'r2' } }), // reblog
     ];
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.originalPosts).toBe(1);
     expect(result.reblogs).toBe(2);
     expect(result.totalPosts).toBe(3);
@@ -69,7 +61,7 @@ describe('analyzeStatuses', () => {
       createStatus({ favourites_count: 100, reblogs_count: 50 }),
       createStatus({ favourites_count: 50, reblogs_count: 25 }),
     ];
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.totalFavorites).toBe(150);
     expect(result.socialImpactScore).toBeGreaterThan(0);
   });
@@ -80,7 +72,7 @@ describe('analyzeStatuses', () => {
       createStatus({ created_at: '2024-01-20T12:00:00.000Z' }),
       createStatus({ created_at: '2024-02-15T12:00:00.000Z' }),
     ];
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.monthlyPosts[0].count).toBe(2); // January
     expect(result.monthlyPosts[1].count).toBe(1); // February
   });
@@ -97,7 +89,12 @@ describe('analyzeStatuses', () => {
       createStatus({ created_at: hour2.toISOString() }),
       createStatus({ created_at: hour14.toISOString() }),
     ];
-    const result = analyze(statuses, { lang: 'en', year: now.getFullYear() });
+    const result = analyzeStatuses(
+      statuses,
+      mockAccount,
+      'en',
+      now.getFullYear()
+    );
     const h2 = hour2.getHours();
     const h14 = hour14.getHours();
     expect(result.hourlyPosts[h2].count).toBe(1);
@@ -110,7 +107,7 @@ describe('analyzeStatuses', () => {
       .map((_, i) =>
         createStatus({ id: String(i), in_reply_to_id: null, reblog: null })
       );
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.persona.name).toBe('The Broadcaster');
   });
 
@@ -125,7 +122,7 @@ describe('analyzeStatuses', () => {
           createStatus({ id: `o${i}`, in_reply_to_id: null, reblog: null })
         ),
     ];
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.persona.name).toBe('The Curator');
   });
 
@@ -140,7 +137,7 @@ describe('analyzeStatuses', () => {
     for (let i = 0; i < 80; i++) {
       statuses.push(createStatus({ created_at: '2024-06-15T14:00:00.000Z' }));
     }
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     // Result depends on local timezone, so we check both possibilities
     const isNightOwl = result.chronotype.name === 'Night Owl';
     const isRegular = result.chronotype.name === 'The Regular';
@@ -154,7 +151,7 @@ describe('analyzeStatuses', () => {
       createStatus({ created_at: '2024-01-03T12:00:00.000Z' }),
       createStatus({ created_at: '2024-01-05T12:00:00.000Z' }),
     ];
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.longestStreak).toBe(3);
   });
 
@@ -164,7 +161,7 @@ describe('analyzeStatuses', () => {
       createStatus({ media_attachments: [] }),
       createStatus({ media_attachments: [{ id: '2', type: 'video' }] }),
     ];
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.contentDistribution).toContainEqual(
       expect.objectContaining({ name: 'Media' })
     );
@@ -172,13 +169,13 @@ describe('analyzeStatuses', () => {
 
   it('returns correct year in result', () => {
     const statuses = [createStatus({ created_at: '2024-06-15T12:00:00.000Z' })];
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.year).toBe(2024);
   });
 
   it('returns account info in result', () => {
     const statuses = [createStatus({ created_at: '2024-06-15T12:00:00.000Z' })];
-    const result = analyze(statuses, { lang: 'en', year: 2024 });
+    const result = analyzeStatuses(statuses, mockAccount, 'en', 2024);
     expect(result.account.username).toBe('testuser');
   });
 });
