@@ -1,9 +1,9 @@
 /**
- * 内联 SVG 图标组件 - 替代 remixicon 字体图标
- * 使用 SVG 可以避免加载整个图标字体库，提升性能
+ * Inline SVG icon components - replacement for remixicon font
+ * Using SVG avoids loading the entire icon font library, improving performance
  */
 
-export function SparklingIcon({ className = "" }) {
+export function SparklingIcon({ className = '' }) {
   return (
     <svg
       className={className}
@@ -17,7 +17,7 @@ export function SparklingIcon({ className = "" }) {
   );
 }
 
-export function CheckIcon({ className = "" }) {
+export function CheckIcon({ className = '' }) {
   return (
     <svg
       className={className}
@@ -31,7 +31,7 @@ export function CheckIcon({ className = "" }) {
   );
 }
 
-export function LockIcon({ className = "" }) {
+export function LockIcon({ className = '' }) {
   return (
     <svg
       className={className}
@@ -45,7 +45,7 @@ export function LockIcon({ className = "" }) {
   );
 }
 
-export function ArrowLeftIcon({ className = "" }) {
+export function ArrowLeftIcon({ className = '' }) {
   return (
     <svg
       className={className}
@@ -59,7 +59,7 @@ export function ArrowLeftIcon({ className = "" }) {
   );
 }
 
-export function DownloadIcon({ className = "" }) {
+export function DownloadIcon({ className = '' }) {
   return (
     <svg
       className={className}
@@ -73,7 +73,7 @@ export function DownloadIcon({ className = "" }) {
   );
 }
 
-export function LoaderIcon({ className = "" }) {
+export function LoaderIcon({ className = '' }) {
   return (
     <svg
       className={`animate-spin ${className}`}
@@ -87,7 +87,7 @@ export function LoaderIcon({ className = "" }) {
   );
 }
 
-export function ArrowUpIcon({ className = "" }) {
+export function ArrowUpIcon({ className = '' }) {
   return (
     <svg
       className={className}
@@ -101,7 +101,7 @@ export function ArrowUpIcon({ className = "" }) {
   );
 }
 
-export function TrophyIcon({ className = "", style = {} }) {
+export function TrophyIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -116,7 +116,7 @@ export function TrophyIcon({ className = "", style = {} }) {
   );
 }
 
-export function TimeIcon({ className = "", style = {} }) {
+export function TimeIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -131,7 +131,7 @@ export function TimeIcon({ className = "", style = {} }) {
   );
 }
 
-export function UserStarIcon({ className = "", style = {} }) {
+export function UserStarIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -146,7 +146,7 @@ export function UserStarIcon({ className = "", style = {} }) {
   );
 }
 
-export function QuillPenIcon({ className = "", style = {} }) {
+export function QuillPenIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -161,7 +161,7 @@ export function QuillPenIcon({ className = "", style = {} }) {
   );
 }
 
-export function EditIcon({ className = "", style = {} }) {
+export function EditIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -176,7 +176,7 @@ export function EditIcon({ className = "", style = {} }) {
   );
 }
 
-export function HeartIcon({ className = "", style = {} }) {
+export function HeartIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -191,7 +191,7 @@ export function HeartIcon({ className = "", style = {} }) {
   );
 }
 
-export function RepeatIcon({ className = "", style = {} }) {
+export function RepeatIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -206,7 +206,7 @@ export function RepeatIcon({ className = "", style = {} }) {
   );
 }
 
-export function FireIcon({ className = "", style = {} }) {
+export function FireIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -221,7 +221,7 @@ export function FireIcon({ className = "", style = {} }) {
   );
 }
 
-export function StarSmileIcon({ className = "", style = {} }) {
+export function StarSmileIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -236,7 +236,7 @@ export function StarSmileIcon({ className = "", style = {} }) {
   );
 }
 
-export function CalendarIcon({ className = "", style = {} }) {
+export function CalendarIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -251,7 +251,7 @@ export function CalendarIcon({ className = "", style = {} }) {
   );
 }
 
-export function CalendarCheckIcon({ className = "", style = {} }) {
+export function CalendarCheckIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -266,7 +266,7 @@ export function CalendarCheckIcon({ className = "", style = {} }) {
   );
 }
 
-export function LineChartIcon({ className = "", style = {} }) {
+export function LineChartIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -281,7 +281,7 @@ export function LineChartIcon({ className = "", style = {} }) {
   );
 }
 
-export function PieChartIcon({ className = "", style = {} }) {
+export function PieChartIcon({ className = '', style = {} }) {
   return (
     <svg
       className={className}
@@ -296,7 +296,7 @@ export function PieChartIcon({ className = "", style = {} }) {
   );
 }
 
-export function MastodonIcon({ className = "" }) {
+export function MastodonIcon({ className = '' }) {
   return (
     <svg
       className={className}

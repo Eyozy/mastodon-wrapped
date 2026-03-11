@@ -1,9 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   /* Modern Slate Design System */
-  --font-heading: "Space Grotesk", system-ui, -apple-system, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-heading: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 
   --color-primary: #2563eb;
   --color-secondary: #64748b;
@@ -49,8 +49,8 @@
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.3); /* Muted blue glow */
 
   /* Gradients - Replaced with solid or subtle corporate gradients */
@@ -98,7 +98,9 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 h1,
@@ -133,7 +135,8 @@ h6,
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at top right, #f1f5f9 0%, transparent 40%),
+  background:
+    radial-gradient(circle at top right, #f1f5f9 0%, transparent 40%),
     radial-gradient(circle at bottom left, #f8fafc 0%, transparent 40%);
   z-index: -1;
   pointer-events: none;
@@ -329,4 +332,47 @@ h6,
 
 .back-to-top-btn:hover {
   background: #4338ca !important;
+}
+
+/* Shared Link Styles */
+.hover-underline {
+  position: relative;
+  text-decoration: none;
+  color: #64748b;
+  font-weight: 500;
+  display: inline-block;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.hover-underline:hover {
+  color: #3b82f6;
+}
+
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1.5px;
+  bottom: -2px;
+  left: 0;
+  background-color: currentColor;
+  transform-origin: bottom right;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Shared Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

@@ -1,4 +1,4 @@
-import { useState, useRef, lazy, Suspense } from "react";
+import { useState, useRef, lazy, Suspense } from 'react';
 import {
   getUserData,
   getDefaultYear,
@@ -6,38 +6,40 @@ import {
   getAvailableYearsFromAccount,
   parseHandle,
   getCachedUserData,
-} from "./services/mastodonApi";
-import { analyzeStatuses } from "./utils/dataAnalyzer";
-import { getTranslation } from "./utils/translations";
-import ErrorBoundary from "./components/ErrorBoundary";
-import "./App.css";
+} from './services/mastodonApi';
+import { analyzeStatuses } from './utils/dataAnalyzer';
+import { getTranslation } from './utils/translations';
+import { AppState, TimezoneMode, Lang } from './lib/utils';
+import ErrorBoundary from './components/ErrorBoundary';
+import './App.css';
 
 // Lazy load large components to improve initial page load performance
-const LandingPage = lazy(() => import("./components/LandingPage"));
-const StatsDisplay = lazy(() => import("./components/StatsDisplay"));
+const LandingPage = lazy(() => import('./components/LandingPage'));
+const StatsDisplay = lazy(() => import('./components/StatsDisplay'));
 
 function App() {
   const detectLanguage = () => {
     const browserLang = navigator.language;
-    return browserLang.startsWith("zh") ? "zh" : "en";
+    return browserLang.startsWith(Lang.ZH) ? Lang.ZH : Lang.EN;
   };
 
   const [lang, setLang] = useState(detectLanguage());
-  const [appState, setAppState] = useState("landing");
-  const [loadingMessage, setLoadingMessage] = useState("");
+  const [appState, setAppState] = useState(AppState.LANDING);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [stats, setStats] = useState(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [selectedYear, setSelectedYear] = useState(getDefaultYear());
   const [availableYears, setAvailableYears] = useState([]);
-  const [timezoneMode, setTimezoneMode] = useState("local"); // 'local' | 'utc'
-  const [currentHandle, setCurrentHandle] = useState("");
+  const [timezoneMode, setTimezoneMode] = useState(TimezoneMode.LOCAL);
+  const [currentHandle, setCurrentHandle] = useState('');
 
   // Ref to hold the current AbortController for request cancellation
   const abortControllerRef = useRef(null);
 
   const t = (key, params) => getTranslation(lang, key, params);
-  const toggleLanguage = () => setLang((prev) => (prev === "en" ? "zh" : "en"));
+  const toggleLanguage = () =>
+    setLang((prev) => (prev === Lang.EN ? Lang.ZH : Lang.EN));
 
   const handleFetchStats = async (handle, yearOverride, timezoneOverride) => {
     const tz = timezoneOverride || timezoneMode;
@@ -53,10 +55,10 @@ function App() {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    setAppState("loading");
-    setLoadingMessage(t("fetching"));
+    setAppState(AppState.LOADING);
+    setLoadingMessage(t('fetching'));
     setLoadingProgress(5);
-    setError("");
+    setError('');
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -66,15 +68,15 @@ function App() {
       const parsed = parseHandle(handle);
       if (!parsed) {
         throw new Error(
-          lang === "zh"
-            ? "请输入有效的 Mastodon 账户地址，格式：用户名@实例"
-            : "Please enter a valid Mastodon handle, format: username@instance"
+          lang === 'zh'
+            ? '请输入有效的 Mastodon 账户地址，格式：用户名@实例'
+            : 'Please enter a valid Mastodon handle, format: username@instance'
         );
       }
 
       const { username, instance } = parsed;
       const lookupMsg =
-        lang === "zh" ? "正在查找用户..." : "Looking up user...";
+        lang === 'zh' ? '正在查找用户...' : 'Looking up user...';
       setLoadingMessage(lookupMsg);
       const account = await lookupAccount(
         instance,
@@ -83,13 +85,8 @@ function App() {
       );
       setLoadingProgress(12);
 
-      // Get years from account registration date (fallback to recent-post inference if unavailable)
-      let yearsInfo = null;
-      if (account?.created_at) {
-        yearsInfo = getAvailableYearsFromAccount(account);
-      } else {
-        yearsInfo = await getAvailableYears(instance, account.id, controller.signal);
-      }
+      // Get available years from account info (registration year to current year)
+      const yearsInfo = getAvailableYearsFromAccount(account);
 
       const { years, defaultYear } = yearsInfo;
       setAvailableYears(years);
@@ -112,7 +109,10 @@ function App() {
         data = await getUserData(
           handle,
           (msg) => setLoadingMessage(msg),
-          (count) => setLoadingProgress(Math.round(Math.min(15 + (count / 400) * 60, 75))),
+          (count) =>
+            setLoadingProgress(
+              Math.round(Math.min(15 + (count / 400) * 60, 75))
+            ),
           lang,
           controller.signal,
           targetYear,
@@ -121,7 +121,7 @@ function App() {
         );
       }
 
-      setLoadingMessage(t("analyzing"));
+      setLoadingMessage(t('analyzing'));
       setLoadingProgress(80);
       await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -134,7 +134,7 @@ function App() {
       );
       if (!analysisResult) {
         throw new Error(
-          lang === "zh"
+          lang === 'zh'
             ? `未找到该用户在 ${targetYear} 年的公开嘟文。`
             : `No public toots found for ${targetYear}.`
         );
@@ -146,21 +146,21 @@ function App() {
       setStats(analysisResult);
       setLoadingProgress(100);
 
-      setTimeout(() => setAppState("stats"), 500);
+      setTimeout(() => setAppState(AppState.STATS), 500);
     } catch (err) {
       // Ignore abort errors - they're intentional cancellations
-      if (err.name === "AbortError") {
+      if (err.name === 'AbortError') {
         // Reset loading state to prevent UI inconsistency
         setLoadingProgress(0);
-        setLoadingMessage("");
+        setLoadingMessage('');
         return;
       }
 
       setError(
         err.message ||
-        (lang === "zh" ? "获取数据时发生错误" : "Error fetching data")
+          (lang === 'zh' ? '获取数据时发生错误' : 'Error fetching data')
       );
-      setAppState("landing");
+      setAppState(AppState.LANDING);
     } finally {
       // Clean up abort controller reference for this specific request
       // This ensures proper cleanup whether the request completed, failed, or was aborted
@@ -173,30 +173,30 @@ function App() {
   // Safely extract handle from stats for year/timezone switching
   const getHandleFromStats = () => {
     if (currentHandle) return currentHandle;
-    if (!stats?.account) return "";
+    if (!stats?.account) return '';
     try {
       const url = new URL(stats.account.url);
       return `${stats.account.acct}@${url.hostname}`;
     } catch {
       // Fallback to split method if URL parsing fails
-      const hostPart = stats.account.url?.split("/")[2];
-      return hostPart ? `${stats.account.acct}@${hostPart}` : "";
+      const hostPart = stats.account.url?.split('/')[2];
+      return hostPart ? `${stats.account.acct}@${hostPart}` : '';
     }
   };
 
   const handleReset = () => {
-    setAppState("landing");
+    setAppState(AppState.LANDING);
     setStats(null);
-    setError("");
+    setError('');
     setLoadingProgress(0);
-    setLoadingMessage("");
+    setLoadingMessage('');
   };
 
   const handleCancel = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
-    setAppState("landing");
+    setAppState(AppState.LANDING);
   };
 
   return (
@@ -209,31 +209,31 @@ function App() {
         }
       >
         <main className="relative app">
-          {appState === "landing" && (
+          {appState === AppState.LANDING && (
             <div className="fixed z-50 language-switcher top-4 right-4">
               <button
                 onClick={toggleLanguage}
                 className="px-3 py-1 text-sm font-medium transition-all border rounded-full shadow-sm bg-white/80 backdrop-blur-sm border-slate-200 text-slate-600 hover:bg-white hover:text-indigo-600"
-                aria-label={lang === "en" ? "Switch to Chinese" : "切换到英文"}
+                aria-label={lang === 'en' ? 'Switch to Chinese' : '切换到英文'}
               >
-                {lang === "en" ? "中文" : "English"}
+                {lang === 'en' ? '中文' : 'English'}
               </button>
             </div>
           )}
 
-          {appState !== "stats" && (
+          {appState !== 'stats' && (
             <LandingPage
               onSubmit={handleFetchStats}
-              isLoading={appState === "loading"}
+              isLoading={appState === AppState.LOADING}
               loadingMessage={loadingMessage}
               loadingProgress={loadingProgress}
-              error={appState === "landing" ? error : ""}
+              error={appState === AppState.LANDING ? error : ''}
               t={t}
               onCancel={handleCancel}
             />
           )}
 
-          {appState === "stats" && stats && (
+          {appState === AppState.STATS && stats && (
             <StatsDisplay
               stats={stats}
               onReset={handleReset}

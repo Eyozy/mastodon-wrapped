@@ -11,7 +11,8 @@
   padding: var(--spacing-xl) var(--spacing-lg);
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 24px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02),
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.02),
     0 2px 4px -1px rgba(0, 0, 0, 0.01);
   border: 1px solid rgba(255, 255, 255, 0.8);
 }
@@ -459,38 +460,6 @@
   padding-top: var(--spacing-md);
   color: var(--text-muted);
   font-size: 0.875rem;
-}
-
-.hover-underline {
-  position: relative;
-  text-decoration: none;
-  color: #64748b;
-  font-weight: 500;
-  display: inline-block;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.hover-underline:hover {
-  color: #3b82f6;
-}
-
-.hover-underline::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  transform: scaleX(0);
-  height: 1.5px;
-  bottom: -2px;
-  left: 0;
-  background-color: currentColor;
-  transform-origin: bottom right;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hover-underline:hover::after {
-  transform: scaleX(1);
-  transform-origin: bottom left;
 }
 
 .footer-sep {

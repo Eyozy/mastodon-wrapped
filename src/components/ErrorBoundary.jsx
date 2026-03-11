@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 /**
  * Error Boundary component to catch and handle React component errors
@@ -21,22 +21,22 @@ export class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      const { lang = "en" } = this.props;
+      const { lang = 'en' } = this.props;
 
       return (
         <div className="error-boundary">
           <div className="error-content">
             <div className="error-icon">⚠️</div>
             <h2 className="error-title">
-              {lang === "zh" ? "出错了" : "Something went wrong"}
+              {lang === 'zh' ? '出错了' : 'Something went wrong'}
             </h2>
             <p className="error-message">
-              {lang === "zh"
-                ? "应用遇到了意外错误，请刷新页面重试。"
-                : "The application encountered an unexpected error. Please refresh and try again."}
+              {lang === 'zh'
+                ? '应用遇到了意外错误，请刷新页面重试。'
+                : 'The application encountered an unexpected error. Please refresh and try again.'}
             </p>
             <button className="error-button" onClick={this.handleReset}>
-              {lang === "zh" ? "刷新页面" : "Refresh Page"}
+              {lang === 'zh' ? '刷新页面' : 'Refresh Page'}
             </button>
           </div>
           <style>{`

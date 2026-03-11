@@ -1,18 +1,21 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const PRIVATE_HOST_RE = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.0\.0\.0|::1$|fc00:|fe80:)/i;
+const PRIVATE_HOST_RE =
+  /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.0\.0\.0|::1$|fc00:|fe80:)/i;
 
 function avatarProxyPlugin() {
   return {
     name: 'avatar-proxy',
     configureServer(server) {
       server.middlewares.use('/api/avatar-proxy', async (req, res) => {
-        const urlParam = new URL(req.url, 'http://localhost').searchParams.get('url');
+        const urlParam = new URL(req.url, 'http://localhost').searchParams.get(
+          'url'
+        );
         if (!urlParam) {
           res.statusCode = 400;
           res.end('Missing url');
@@ -45,7 +48,8 @@ function avatarProxyPlugin() {
             res.end(`Upstream error: ${upstream.status}`);
             return;
           }
-          const contentType = upstream.headers.get('content-type') ?? 'image/jpeg';
+          const contentType =
+            upstream.headers.get('content-type') ?? 'image/jpeg';
           const buffer = await upstream.arrayBuffer();
           res.setHeader('Content-Type', contentType);
           res.setHeader('Access-Control-Allow-Origin', '*');
@@ -64,7 +68,7 @@ export default defineConfig({
   plugins: [react(), avatarProxyPlugin()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
@@ -79,7 +83,7 @@ export default defineConfig({
       'react-dom',
       'framer-motion',
       'recharts',
-      'react-calendar-heatmap'
+      'react-calendar-heatmap',
     ],
   },
   build: {
@@ -111,8 +115,8 @@ export default defineConfig({
       polyfill: false, // Reduce polyfill overhead
       resolveDependencies: (filename, deps) => {
         // Don't preload charts-vendor on initial page load
-        return deps.filter(dep => !dep.includes('charts-vendor'));
+        return deps.filter((dep) => !dep.includes('charts-vendor'));
       },
     },
   },
-})
+});
