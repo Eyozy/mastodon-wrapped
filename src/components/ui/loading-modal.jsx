@@ -1,12 +1,12 @@
-import { Progress } from "./progress";
-import { LoadingSpinner } from "./loading-spinner";
-import { cn } from "../../lib/utils";
-import "./loading-modal.css";
+import { Progress } from './progress';
+import { LoadingSpinner } from './loading-spinner';
+import { cn } from '../../lib/utils';
+import './loading-modal.css';
 
 export function LoadingModal({
   isOpen,
   progress = 0,
-  message = "Loading...",
+  message = 'Loading...',
   t,
   onCancel,
 }) {
@@ -24,13 +24,14 @@ export function LoadingModal({
         <h2
           className="mb-6 text-3xl font-bold leading-relaxed tracking-wide text-center text-slate-800 font-display loading-modal-message"
           key={message}
+          aria-live="polite"
         >
           {message}
         </h2>
 
         {/* Subtitle */}
         <p className="mb-24 text-base font-medium tracking-wider text-center text-slate-400">
-          {t ? t("analyzing") : "正在全方位分析你的年度数据..."}
+          {t ? t('analyzing') : '正在全方位分析你的年度数据...'}
         </p>
 
         {/* Linear Progress Bar with Left Data */}
@@ -48,7 +49,7 @@ export function LoadingModal({
         </div>
 
         <p className="mt-4 text-xs font-medium text-slate-400">
-          {t ? t("local_processing") : "数据仅在本地浏览器处理"}
+          {t ? t('local_processing') : '数据仅在本地浏览器处理'}
         </p>
 
         {/* Cancel Button */}
@@ -57,7 +58,7 @@ export function LoadingModal({
             onClick={onCancel}
             className="mt-6 px-6 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
           >
-            {t ? t("cancel") : "取消"}
+            {t ? t('cancel') : '取消'}
           </button>
         )}
       </div>
@@ -65,15 +66,14 @@ export function LoadingModal({
   );
 }
 
-
 export function InlineLoading({
   progress = 0,
-  message = "Loading...",
-  size = "sm",
+  message = 'Loading...',
+  size = 'sm',
   className,
 }) {
   return (
-    <div className={cn("flex items-center space-x-3", className)}>
+    <div className={cn('flex items-center space-x-3', className)}>
       <LoadingSpinner size={size} />
       <div className="flex-1">
         <p className="text-sm font-medium text-gray-700">{message}</p>

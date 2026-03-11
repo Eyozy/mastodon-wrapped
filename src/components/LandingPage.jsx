@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { POPULAR_INSTANCES } from "../services/mastodonApi";
-import { LoadingModal } from "./ui/loading-modal";
-import { SparklingIcon, LockIcon } from "./ui/icons";
-import "./LandingPage.css";
+import { useState } from 'react';
+import { POPULAR_INSTANCES } from '../services/mastodonApi';
+import { LoadingModal } from './ui/loading-modal';
+import { SparklingIcon, LockIcon } from './ui/icons';
+import './LandingPage.css';
 
 export default function LandingPage({
   onSubmit,
@@ -15,29 +15,29 @@ export default function LandingPage({
 }) {
   const footerYearRange = `2025 - ${new Date().getFullYear()}`;
 
-  const [handle, setHandle] = useState("");
-  const [error, setError] = useState("");
+  const [handle, setHandle] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!handle.trim()) {
-      setError(t("error_empty"));
+      setError(t('error_empty'));
       return;
     }
 
     // Basic validation - should contain @
-    if (!handle.includes("@")) {
-      setError(t("error_invalid"));
+    if (!handle.includes('@')) {
+      setError(t('error_invalid'));
       return;
     }
 
-    setError("");
+    setError('');
     onSubmit(handle.trim());
   };
 
   const handleQuickSelect = (instance) => {
-    const username = handle.split("@")[0].replace("@", "");
+    const username = handle.split('@')[0].replace('@', '');
     if (username) {
       setHandle(`${username}@${instance.name}`);
     }
@@ -53,7 +53,7 @@ export default function LandingPage({
           <h1 className="title animate-fade-in-up delay-1">Mastodon Wrapped</h1>
 
           <p className="subtitle animate-fade-in-up delay-2">
-            {t("subtitle_auto")}
+            {t('subtitle_auto')}
           </p>
         </div>
 
@@ -66,13 +66,13 @@ export default function LandingPage({
             <input
               type="text"
               className="input handle-input"
-              placeholder={t("placeholder")}
+              placeholder={t('placeholder')}
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
               disabled={isLoading}
             />
           </div>
-          <p className="input-helper">{t("helper")}</p>
+          <p className="input-helper">{t('helper')}</p>
 
           {errorProp && (
             <p className="error-message animate-fade-in">{errorProp}</p>
@@ -88,19 +88,19 @@ export default function LandingPage({
             {isLoading ? (
               <>
                 <span className="spinner-small"></span>
-                {loadingMessage || t("loading")}
+                {loadingMessage || t('loading')}
               </>
             ) : (
               <>
                 <SparklingIcon />
-                {t("cta")}
+                {t('cta')}
               </>
             )}
           </button>
         </form>
 
         <div className="quick-instances animate-fade-in delay-4">
-          <p className="quick-label">{t("quick_instances")}</p>
+          <p className="quick-label">{t('quick_instances')}</p>
           <div className="instance-buttons">
             {POPULAR_INSTANCES.slice(0, 4).map((instance) => (
               <button
@@ -117,7 +117,7 @@ export default function LandingPage({
         </div>
 
         <p className="privacy-note animate-fade-in delay-5">
-          <LockIcon /> {t("privacy")}
+          <LockIcon /> {t('privacy')}
         </p>
 
         <div className="kofi-container animate-fade-in delay-6">
@@ -140,11 +140,9 @@ export default function LandingPage({
 
       {/* Footer */}
       <footer className="landing-footer animate-fade-in delay-6">
+        <p>&copy; {t('footer_copyright', { year: footerYearRange })}</p>
         <p>
-          &copy; {t("footer_copyright", { year: footerYearRange })}
-        </p>
-        <p>
-          {t("inspiration")}{" "}
+          {t('inspiration')}{' '}
           <a
             href="https://x.com/i/status/1998855377409159457"
             target="_blank"
@@ -152,9 +150,8 @@ export default function LandingPage({
             className="hover-underline"
           >
             Kate Deyneka
-          </a>
-          {" "}
-          <span className="footer-sep">·</span>{" "}
+          </a>{' '}
+          <span className="footer-sep">·</span>{' '}
           <a
             href="https://github.com/Eyozy/mastodon-wrapped"
             target="_blank"
@@ -170,7 +167,7 @@ export default function LandingPage({
       <LoadingModal
         isOpen={isLoading}
         progress={loadingProgress}
-        message={loadingMessage || t("fetching")}
+        message={loadingMessage || t('fetching')}
         t={t}
         onCancel={onCancel}
       />

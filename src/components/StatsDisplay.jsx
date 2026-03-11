@@ -1,16 +1,17 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { downloadReportAsImage } from "../utils/imageDownloader";
-import { ArrowUpIcon } from "./ui/icons";
-import "./StatsDisplay.css";
-import StatsReport from "./StatsReport";
+import { useState, useEffect, useRef } from 'react';
+// eslint-disable-next-line no-unused-vars
+import { motion, AnimatePresence } from 'framer-motion';
+import { downloadReportAsImage } from '../utils/imageDownloader';
+import { ArrowUpIcon } from './ui/icons';
+import './StatsDisplay.css';
+import StatsReport from './StatsReport';
 
 export default function StatsDisplay({
   stats,
   onReset,
   t,
   availableYears = [],
-  timezoneMode = "local",
+  timezoneMode = 'local',
   onYearChange,
   onTimezoneChange,
 }) {
@@ -37,18 +38,18 @@ export default function StatsDisplay({
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Early return after hooks to comply with Rules of Hooks
   if (!stats) return null;
 
   const formatUtcOffset = (offsetMinutes) => {
-    const sign = offsetMinutes >= 0 ? "+" : "-";
+    const sign = offsetMinutes >= 0 ? '+' : '-';
     const abs = Math.abs(offsetMinutes);
-    const hh = String(Math.floor(abs / 60)).padStart(2, "0");
-    const mm = String(abs % 60).padStart(2, "0");
+    const hh = String(Math.floor(abs / 60)).padStart(2, '0');
+    const mm = String(abs % 60).padStart(2, '0');
     return `UTC${sign}${hh}:${mm}`;
   };
 
@@ -57,7 +58,7 @@ export default function StatsDisplay({
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   };
 
@@ -79,11 +80,11 @@ export default function StatsDisplay({
       const filename = `mastodon-wrapped-${stats.account.acct}-${year}.png`;
 
       // 3. Capture the Ghost Component (ID: "export-stats-container")
-      await downloadReportAsImage("export-stats-container", filename);
+      await downloadReportAsImage('export-stats-container', filename);
     } catch (e) {
       console.error(e);
       if (isMountedRef.current) {
-        alert(t("error_download"));
+        alert(t('error_download'));
       }
     } finally {
       downloadLockRef.current = false;
@@ -136,13 +137,13 @@ export default function StatsDisplay({
       {isExporting && (
         <div
           style={{
-            position: "fixed",
+            position: 'fixed',
             top: 0,
-            left: "-9999px",
-            width: "900px",
-            height: "auto",
+            left: '-9999px',
+            width: '900px',
+            height: 'auto',
             zIndex: -1,
-            background: "white",
+            background: 'white',
           }}
         >
           <StatsReport

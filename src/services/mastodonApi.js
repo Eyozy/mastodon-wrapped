@@ -75,7 +75,7 @@ async function fetchWithTimeout(url, options = {}, externalSignal) {
   try {
     const response = await fetch(url, {
       ...options,
-      signal: controller.signal
+      signal: controller.signal,
     });
     return response;
   } finally {
@@ -114,10 +114,12 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
 
         // If we have retries left, wait and try again
         if (attempt < maxRetries - 1) {
-          await new Promise(resolve => setTimeout(resolve, waitTime));
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
           continue;
         } else {
-          throw new Error('Too many requests. Please wait a moment and try again.');
+          throw new Error(
+            'Too many requests. Please wait a moment and try again.'
+          );
         }
       }
 
@@ -145,7 +147,7 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
 
       // For network errors, wait and retry
       const waitTime = Math.pow(2, attempt) * 1000;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
   }
 
@@ -178,8 +180,12 @@ export function parseHandle(handle) {
 
     // 3. Reject localhost and private network hosts
     const forbiddenHosts = [
-      'localhost', '127.0.0.1', '0.0.0.0', '::1',
-      'local', 'localhost.localdomain'
+      'localhost',
+      '127.0.0.1',
+      '0.0.0.0',
+      '::1',
+      'local',
+      'localhost.localdomain',
     ];
     if (forbiddenHosts.includes(instance)) {
       throw new Error('Localhost is not allowed as instance');
@@ -187,7 +193,9 @@ export function parseHandle(handle) {
 
     // 4. Require public domain format (must contain at least one dot)
     if (!instance.includes('.') || instance.startsWith('.')) {
-      throw new Error('Invalid domain format. Instance must be a public domain.');
+      throw new Error(
+        'Invalid domain format. Instance must be a public domain.'
+      );
     }
 
     // 5. Prevent excessively long domains (DoS protection)
@@ -236,7 +244,10 @@ async function avatarToBase64(url) {
       if (!res.ok) continue;
       const blob = await res.blob();
       const b64 = btoa(
-        new Uint8Array(await blob.arrayBuffer()).reduce((s, b) => s + String.fromCharCode(b), '')
+        new Uint8Array(await blob.arrayBuffer()).reduce(
+          (s, b) => s + String.fromCharCode(b),
+          ''
+        )
       );
       return `data:${blob.type};base64,${b64}`;
     } catch {
@@ -252,7 +263,9 @@ async function avatarToBase64(url) {
  * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  */
 export async function lookupAccount(instance, acct, signal) {
-  const baseUrl = instance.startsWith('http') ? instance : `https://${instance}`;
+  const baseUrl = instance.startsWith('http')
+    ? instance
+    : `https://${instance}`;
   const url = `${baseUrl}/api/v1/accounts/lookup?acct=${encodeURIComponent(acct)}`;
 
   // Use fetchWithRetry for automatic retry on rate limit
@@ -266,7 +279,9 @@ export async function lookupAccount(instance, acct, signal) {
  * @param {AbortSignal} [options.signal] - Optional abort signal for cancellation
  */
 export async function getAccountStatuses(instance, accountId, options = {}) {
-  const baseUrl = instance.startsWith('http') ? instance : `https://${instance}`;
+  const baseUrl = instance.startsWith('http')
+    ? instance
+    : `https://${instance}`;
   const params = new URLSearchParams({
     limit: options.limit || 40,
     exclude_replies: options.excludeReplies ? 'true' : 'false',
@@ -290,14 +305,23 @@ export async function getAccountStatuses(instance, accountId, options = {}) {
  * @param {number} year - The year to fetch statuses for
  * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  */
-export async function fetchYearStatuses(instance, accountId, onProgress, signal, year, timezoneMode = 'local') {
+export async function fetchYearStatuses(
+  instance,
+  accountId,
+  onProgress,
+  signal,
+  year,
+  timezoneMode = 'local'
+) {
   const targetYear = year || new Date().getFullYear();
-  const startOfYear = timezoneMode === 'utc'
-    ? new Date(Date.UTC(targetYear, 0, 1, 0, 0, 0, 0))
-    : new Date(targetYear, 0, 1, 0, 0, 0, 0);
-  const endOfYear = timezoneMode === 'utc'
-    ? new Date(Date.UTC(targetYear, 11, 31, 23, 59, 59, 999))
-    : new Date(targetYear, 11, 31, 23, 59, 59, 999);
+  const startOfYear =
+    timezoneMode === 'utc'
+      ? new Date(Date.UTC(targetYear, 0, 1, 0, 0, 0, 0))
+      : new Date(targetYear, 0, 1, 0, 0, 0, 0);
+  const endOfYear =
+    timezoneMode === 'utc'
+      ? new Date(Date.UTC(targetYear, 11, 31, 23, 59, 59, 999))
+      : new Date(targetYear, 11, 31, 23, 59, 59, 999);
 
   let allStatuses = [];
   let maxId = null;
@@ -355,7 +379,7 @@ export async function fetchYearStatuses(instance, accountId, onProgress, signal,
 
     // Reduced rate limiting delay (50ms instead of 200ms)
     // Most Mastodon instances allow ~300 requests/5min, so 50ms is safe
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
   return allStatuses;
@@ -367,13 +391,23 @@ export async function fetchYearStatuses(instance, accountId, onProgress, signal,
  * @param {AbortSignal} [signal] - Optional abort signal for cancellation
  * @param {Object} [preloadedAccount] - Optional pre-fetched account to avoid duplicate API call
  */
-export async function getUserData(handle, onMessage, onProgress, lang = 'en', signal, year, timezoneMode = 'local', preloadedAccount = null) {
+export async function getUserData(
+  handle,
+  onMessage,
+  onProgress,
+  lang = 'en',
+  signal,
+  year,
+  timezoneMode = 'local',
+  preloadedAccount = null
+) {
   const parsed = parseHandle(handle);
 
   if (!parsed) {
-    const errorMsg = lang === 'zh'
-      ? '请输入有效的 Mastodon 账户地址，格式：用户名@实例'
-      : 'Please enter a valid Mastodon handle, format: username@instance';
+    const errorMsg =
+      lang === 'zh'
+        ? '请输入有效的 Mastodon 账户地址，格式：用户名@实例'
+        : 'Please enter a valid Mastodon handle, format: username@instance';
     throw new Error(errorMsg);
   }
 
@@ -393,11 +427,21 @@ export async function getUserData(handle, onMessage, onProgress, lang = 'en', si
   }
 
   onMessage?.(lang === 'zh' ? '正在获取嘟文...' : 'Fetching toots...');
-  const statuses = await fetchYearStatuses(instance, account.id, (current) => {
-    onMessage?.(lang === 'zh' ? `正在获取嘟文... ${current} 条` : `Fetching toots... ${current} toots`);
-    onProgress?.(current);
-  }, signal, year, timezoneMode);
-
+  const statuses = await fetchYearStatuses(
+    instance,
+    account.id,
+    (current) => {
+      onMessage?.(
+        lang === 'zh'
+          ? `正在获取嘟文... ${current} 条`
+          : `Fetching toots... ${current} toots`
+      );
+      onProgress?.(current);
+    },
+    signal,
+    year,
+    timezoneMode
+  );
 
   const result = { account, statuses, instance, year, timezoneMode };
 
@@ -440,4 +484,3 @@ export function getAvailableYearsFromAccount(account) {
   const defaultYear = clampYear(getDefaultYear(), startYear, currentYear);
   return { years, defaultYear };
 }
-

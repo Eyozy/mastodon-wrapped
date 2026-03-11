@@ -165,7 +165,6 @@ The application uses the public Mastodon API:
 3. Click **"Add New Project"** and import your repository
 
 4. Vercel will auto-detect Vite. Verify the settings:
-
    - Framework Preset: `Vite`
    - Build Command: `npm run build`
    - Output Directory: `dist`
@@ -185,7 +184,6 @@ The application uses the public Mastodon API:
 4. Choose your `mastodon-wrapped` repository from the list
 
 5. Configure the build settings:
-
    - Build Command: `npm run build`
    - Publish Directory: `dist`
 
