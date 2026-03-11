@@ -1,51 +1,46 @@
 # Mastodon Wrapped
 
 <p align="center">
-  <img src="./public/og.jpg" alt="Mastodon Wrapped Banner">
+  <img src="./public/og.jpg" alt="Mastodon Wrapped Banner" width="800">
 </p>
 
-<p align="center">
-  📊 Generate your personalized Mastodon year-end wrapped report
+<p align="center">Generate your personalized Mastodon year-end wrapped report. Like Spotify Wrapped, but for the decentralized social network!
 </p>
 
-## Overview
+## Features
 
-Mastodon Wrapped is a web application that generates personalized annual reports for Mastodon users. Discover your posting patterns, engagement metrics, and yearly highlights in a beautiful, shareable format. Like Spotify Wrapped, but for the decentralized social network!
+### Comprehensive Statistics
 
-## ✨ Features
+- **Social Impact Score**: Calculate your influence with dynamic ranking from Top 1% to 50%
+- **Posting Analytics**: View activity trends, content distribution, and posting rhythm throughout the year
+- **Persona Classification**: Discover your posting personality - whether you're a Broadcaster, Curator, or Balancer
+- **Chronotype Analysis**: Find out your activity pattern - Night Owl, Early Bird, Slacker, or Regular
+- **Activity Calendar**: Interactive heatmap showing your posting patterns across the entire year
 
-### 📊 Comprehensive Statistics
+### Multi-Year Support
 
-- **Social Impact Score**: Calculate your influence with dynamic ranking (Top 1% - 50%)
-- **Posting Analytics**: View activity trends, content distribution, and posting rhythm
-- **Persona Classification**: Discover if you're a Broadcaster, Curator, or Balancer
-- **Chronotype Analysis**: Find out if you're a Night Owl, Early Bird, Slacker, or Regular
-- **Activity Calendar**: Interactive heatmap showing your posting patterns throughout the year
-
-### 📅 Multi-Year Support
-
-- **Year Selection**: Switch between different years to compare your activity
-- **Smart Detection**: Automatically detects available years from your account registration date
+- **Year Selection**: Switch between different years to compare your activity over time
+- **Smart Detection**: Automatically detects available years based on your account registration date
 - **Timezone Modes**: View statistics in local time or UTC for accurate cross-timezone analysis
 
-### 🔒 Privacy-First
+### Privacy-First
 
-- **No Login Required**: Simply enter your Mastodon handle
+- **No Login Required**: Simply enter your Mastodon handle to get started
 - **Public Data Only**: We only access publicly available posts
 - **Local Processing**: Your data never leaves your browser
-- **No Tracking**: Zero analytics or data collection
+- **Zero Tracking**: No analytics or data collection whatsoever
 
-### 🌐 Internationalization
+### Internationalization
 
 - **English & Chinese**: Full support for both languages
-- **Auto-detection**: Automatically detects browser language
+- **Auto-detection**: Automatically detects your browser language
 
-### 📤 Export & Share
+### Export & Share
 
 - **PNG Export**: Download your wrapped report as a high-quality image
-- **CORS Proxy Fallback**: Multiple proxy support for reliable image export
+- **CORS Proxy Fallback**: Multiple proxy support ensuring reliable image export
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -54,165 +49,128 @@ Mastodon Wrapped is a web application that generates personalized annual reports
 
 ### Installation
 
-1. **Clone the repository**
+```bash
+# Clone the repository
+git clone https://github.com/Eyozy/mastodon-wrapped.git
+cd mastodon-wrapped
 
-   ```bash
-   git clone https://github.com/Eyozy/mastodon-wrapped.git
-   cd mastodon-wrapped
-   ```
+# Install dependencies
+npm install
 
-2. **Install dependencies**
+# Start the development server
+npm run dev
+```
 
-   ```bash
-   npm install
-   ```
+Then open `http://localhost:5173` in your browser.
 
-3. **Start the development server**
-
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser**
-
-   Navigate to `http://localhost:5173`
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 mastodon-wrapped/
-├── public/                     # Static assets
-│   └── og.jpg                  # OpenGraph image
+├── public/
+│   └── og.jpg                       # Static assets
 ├── src/
-│   ├── components/             # React components
-│   │   ├── LandingPage.jsx     # Input form and landing UI
-│   │   ├── StatsDisplay.jsx    # Statistics dashboard (12 stat cards + 3 charts)
-│   │   ├── ActivityHeatmap.jsx # Calendar heatmap with unified color config
-│   │   ├── ErrorBoundary.jsx   # Error handling wrapper
-│   │   └── ui/                 # Reusable UI components
-│   ├── services/               # API services
-│   │   └── mastodonApi.js      # Mastodon API with timeout, retry, and SSRF protection
-│   ├── utils/                  # Utility functions
-│   │   ├── dataAnalyzer.js     # Statistics calculation with XSS protection
-│   │   ├── translations.js     # i18n strings (en/zh)
-│   │   └── imageDownloader.js  # PNG export with CORS proxy fallback
-│   ├── App.jsx                 # Main app component with state management
-│   └── main.jsx                # Entry point
-├── index.html                  # HTML template
+│   ├── components/                  # React components
+│   │   ├── LandingPage.jsx          # Entry page with input form
+│   │   ├── StatsDisplay.jsx         # Statistics dashboard (12 cards + 3 charts)
+│   │   ├── StatsReport.jsx          # Individual report cards
+│   │   ├── ActivityHeatmap.jsx      # Activity heatmap
+│   │   ├── ErrorBoundary.jsx        # Error boundary
+│   │   └── ui/                      # Reusable UI components
+│   │       ├── icons.jsx            # Icon components
+│   │       ├── loading-modal.jsx
+│   │       ├── loading-spinner.jsx
+│   │       └── progress.jsx
+│   ├── services/                    # API services
+│   │   └── mastodonApi.js           # Mastodon API (timeout, retry, SSRF protection)
+│   ├── utils/                       # Utility functions
+│   │   ├── dataAnalyzer.js          # Statistics calculation (XSS protection)
+│   │   ├── translations.js          # i18n strings (en/zh)
+│   │   └── imageDownloader.js       # PNG export (CORS proxy fallback)
+│   ├── lib/                         # Core utilities and constants
+│   │   └── utils.js                 # App state, timezone modes, constants
+│   ├── App.jsx                      # Main app component
+│   └── main.jsx                     # Entry point
+├── test/                            # Unit tests
+│   └── analyzeStatuses.test.js      # Data analyzer tests
+├── index.html                       # HTML template
 └── README.md
 ```
 
-## 🎯 Key Features
+## Scoring Rules
 
-### Social Impact Ranking
+### Social Impact Score
 
-Your score is calculated based on:
+Formula:
 
-- Reblogs received × 2
-- Favorites received
-- Total posts × 0.1
-- Longest streak × 5
+```
+Score = Reblogs × 2 + Favorites + Posts × 0.1 + Longest Streak × 5
+```
 
-| Score   | Ranking |
-| ------- | ------- |
-| ≥10,000 | Top 1%  |
-| ≥5,000  | Top 5%  |
-| ≥1,000  | Top 15% |
-| ≥500    | Top 30% |
-| ≥100    | Top 50% |
-| <100    | Growing |
+Ranking thresholds:
+
+- 10,000 and above → Top 1%
+- 5,000 and above → Top 5%
+- 1,000 and above → Top 15%
+- 500 and above → Top 30%
+- 100 and above → Top 50%
+- Below 100 → Growing
 
 ### Persona Classification
 
-Based on your posting behavior:
+Automatically classified based on your posting behavior:
 
-| Persona         | Criteria              |
-| --------------- | --------------------- |
-| The Broadcaster | >60% original content |
-| The Curator     | >60% boosts           |
-| The Balancer    | Mixed posting style   |
+- **The Broadcaster**: More than 60% original content
+- **The Curator**: More than 60% boosts
+- **The Balancer**: A mix of both
 
 ### Chronotype Analysis
 
-Based on posting hours:
+Identified based on your posting hours:
 
-| Chronotype  | Criteria                                |
-| ----------- | --------------------------------------- |
-| Night Owl   | >15% posts between 0-5am                |
-| Early Bird  | >30% posts between 5-10am               |
-| Slacker     | >60% posts during work hours (10am-6pm) |
-| The Regular | Balanced posting schedule               |
+- **Night Owl**: More than 15% posts between midnight and 5am
+- **Early Bird**: More than 30% posts between 5am and 10am
+- **Slacker**: More than 60% posts during work hours (10am to 6pm)
+- **The Regular**: Balanced posting schedule
 
-## 📊 API Reference
+## API Reference
 
-The application uses the public Mastodon API:
+The application uses Mastodon's public API:
 
-| Endpoint                                | Purpose             |
-| --------------------------------------- | ------------------- |
-| `/api/v1/accounts/lookup?acct={handle}` | Account lookup      |
-| `/api/v1/accounts/{id}/statuses`        | Fetch user statuses |
+- **Account Lookup**: `/api/v1/accounts/lookup?acct={handle}`
+- **Fetch Statuses**: `/api/v1/accounts/{id}/statuses`
 
-**Rate limiting**: 50ms delay between pagination requests with automatic retry on HTTP 429.
+Rate limiting includes a 50ms delay between pagination requests with automatic retry when receiving HTTP 429.
 
-## 🌐 Deployment
+## Deployment
 
 ### Vercel (Recommended)
 
-1. Fork or push your code to GitHub
-
+1. Push your code to GitHub
 2. Go to [Vercel](https://vercel.com) and sign in with GitHub
-
-3. Click **"Add New Project"** and import your repository
-
-4. Vercel will auto-detect Vite. Verify the settings:
+3. Click **Add New Project** and import your repository
+4. Vercel auto-detects Vite. Verify these settings:
    - Framework Preset: `Vite`
    - Build Command: `npm run build`
    - Output Directory: `dist`
-
-5. Click **"Deploy"** and wait for the build to complete
-
+5. Click **Deploy** and wait for the build to complete
 6. Your site will be available at `https://your-project.vercel.app`
 
 ### Netlify
 
 1. Go to [Netlify](https://netlify.com) and sign in with GitHub
-
-2. Click **"Add new site"** → **"Import an existing project"**
-
-3. Select **GitHub** as your Git provider and authorize Netlify to access your repositories
-
-4. Choose your `mastodon-wrapped` repository from the list
-
-5. Configure the build settings:
+2. Click **Add new site** → **Import an existing project**
+3. Select GitHub as your provider
+4. Choose the `mastodon-wrapped` repository
+5. Configure build settings:
    - Build Command: `npm run build`
    - Publish Directory: `dist`
+6. Deploy and get your site address
 
-6. Click **"Deploy site"** and wait for the build to complete
+## Contributing
 
-7. Your site will be live with a random subdomain (e.g., `random-name.netlify.app`)
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
-## 🤝 Contributing
-
-We welcome contributions! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
+## License
 
 This project is licensed under the [MIT](LICENSE) License.
-
-## 🙏 Acknowledgments
-
-- Inspired by [Kate Deyneka](https://x.com/i/status/1998855377409159457)
-- Built for [Mastodon](https://joinmastodon.org/)
-- UI powered by [React](https://react.dev/) + [Vite](https://vite.dev/)
-- Styling by [Tailwind CSS](https://tailwindcss.com/)
-- Charts powered by [Recharts](https://recharts.org/)
-- Animations by [Framer Motion](https://motion.dev/)
-- Activity calendar by [react-calendar-heatmap](https://github.com/kevinsqi/react-calendar-heatmap)
-- Image export by [@zumer/snapdom](https://github.com/nicxgao/snapDOM)
-- Icons by [Remix Icon](https://remixicon.com/)

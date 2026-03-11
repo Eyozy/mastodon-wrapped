@@ -8,8 +8,34 @@ const TIMEZONE_LOCAL = 'local';
 const TIMEZONE_UTC = 'utc';
 
 const MONTH_NAMES = {
-  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  zh: ['1 月', '2 月', '3 月', '4 月', '5 月', '6 月', '7 月', '8 月', '9 月', '10 月', '11 月', '12 月'],
+  en: [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ],
+  zh: [
+    '1 月',
+    '2 月',
+    '3 月',
+    '4 月',
+    '5 月',
+    '6 月',
+    '7 月',
+    '8 月',
+    '9 月',
+    '10 月',
+    '11 月',
+    '12 月',
+  ],
 };
 
 /**
@@ -82,7 +108,9 @@ export function analyzeStatuses(
   const yearStatuses = parsedStatuses.filter((p) => p.year === targetYear);
 
   // Publish scope: originals (text+media) + boosts (reblogs), excluding replies
-  const publishedStatuses = yearStatuses.filter((p) => !p.status.in_reply_to_id);
+  const publishedStatuses = yearStatuses.filter(
+    (p) => !p.status.in_reply_to_id
+  );
   const originalStatuses = publishedStatuses.filter((p) => !p.status.reblog);
   const boostStatuses = publishedStatuses.filter((p) => p.status.reblog);
 
@@ -212,9 +240,13 @@ function computeTimeStats(parsedStatuses, lang) {
     { count: -1, name: '-' }
   );
 
-  let maxDay = null, maxCount = 0;
+  let maxDay = null,
+    maxCount = 0;
   Object.entries(dayCounts).forEach(([date, count]) => {
-    if (count > maxCount) { maxCount = count; maxDay = date; }
+    if (count > maxCount) {
+      maxCount = count;
+      maxDay = date;
+    }
   });
 
   return {
@@ -237,21 +269,33 @@ function determineChronotypeFromCounts(hourCounts, total, lang) {
   if (hourCounts.night / total > 0.15) {
     return lang === 'zh'
       ? { name: '守夜人', desc: '深夜是你的灵感时刻，活跃度极高。' }
-      : { name: 'Night Owl', desc: 'Late night is your inspiration time, with high activity.' };
+      : {
+          name: 'Night Owl',
+          desc: 'Late night is your inspiration time, with high activity.',
+        };
   }
   if (hourCounts.morning / total > 0.3) {
     return lang === 'zh'
       ? { name: '早起鸟', desc: '你喜欢在清晨开启一天的社交活动。' }
-      : { name: 'Early Bird', desc: 'You like to start your day with social activities in the early morning.' };
+      : {
+          name: 'Early Bird',
+          desc: 'You like to start your day with social activities in the early morning.',
+        };
   }
   if (hourCounts.work / total > 0.6) {
     return lang === 'zh'
       ? { name: '摸鱼大师', desc: '工作时间活跃度极高...是工作太闲还是太忙？' }
-      : { name: 'Slacker', desc: 'Extremely active during work hours... too much free time or too busy?' };
+      : {
+          name: 'Slacker',
+          desc: 'Extremely active during work hours... too much free time or too busy?',
+        };
   }
   return lang === 'zh'
     ? { name: '生活家', desc: '作息规律，主要在业余时间活跃。' }
-    : { name: 'The Regular', desc: 'Regular schedule, mainly active in your free time.' };
+    : {
+        name: 'The Regular',
+        desc: 'Regular schedule, mainly active in your free time.',
+      };
 }
 
 function determinePersona(total, original, reblogs, replies, lang = 'en') {

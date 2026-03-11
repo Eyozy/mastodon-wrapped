@@ -23,7 +23,7 @@ npm install
 npm run dev
 ```
 
-## Code Standards
+## Code Quality
 
 ### Formatting
 
@@ -37,7 +37,7 @@ npm run format -- --check
 npm run format
 ```
 
-### Lint
+### Linting
 
 The project uses ESLint for code quality:
 
@@ -45,26 +45,33 @@ The project uses ESLint for code quality:
 npm run lint
 ```
 
-### Tests
+### Testing
 
 The project uses Vitest for unit testing:
 
 ```bash
-# Run tests (watch mode)
+# Run tests in watch mode
 npm test
 
-# Run tests (single run)
+# Run tests once
 npm run test:run
 ```
 
-### Test Guidelines
+### Building
 
-Please write unit tests for new features:
+```bash
+npm run build
+```
+
+All four commands must pass before submitting a Pull Request.
+
+## Testing Guidelines
+
+Write unit tests for new features:
 
 - Test files go in the `test/` directory
 - Naming convention: `*.test.js` or `*.test.jsx`
-- Test utilities: `test/dataAnalyzer.test.js`
-- Test components: `test/components/*.test.jsx`
+- Test utilities in `test/analyzeStatuses.test.js`
 
 ```javascript
 import { describe, it, expect } from 'vitest';
@@ -76,17 +83,11 @@ describe('functionName', () => {
 });
 ```
 
-### Build
-
-```bash
-npm run build
-```
-
 ## Commit Standards
 
 ### Commit Message Format
 
-Use Conventional Commits format:
+Use Conventional Commits:
 
 ```
 <type>(<scope>): <description>
@@ -96,7 +97,7 @@ Use Conventional Commits format:
 [optional footer]
 ```
 
-**Types**:
+**Types:**
 
 - `feat`: New feature
 - `fix`: Bug fix
@@ -106,13 +107,11 @@ Use Conventional Commits format:
 - `test`: Test related
 - `chore`: Build tool or auxiliary tool changes
 
-**Examples**:
+**Examples:**
 
 ```
 feat(stats): add hourly distribution chart
-
 fix(api): handle rate limit error properly
-
 docs(readme): update installation instructions
 ```
 
@@ -121,12 +120,12 @@ docs(readme): update installation instructions
 1. Fork the project
 2. Create a branch: `git checkout -b feature/your-feature`
 3. Make your changes
-4. Run checks to ensure everything passes:
+4. Run quality checks:
    ```bash
-   npm run format      # Format code
-   npm run lint       # Check code quality
-   npm run test:run  # Run tests
-   npm run build     # Build project
+   npm run format
+   npm run lint
+   npm run test:run
+   npm run build
    ```
 5. Commit and push to your fork
 6. Create a Pull Request
@@ -134,7 +133,7 @@ docs(readme): update installation instructions
 
 ## Reporting Issues
 
-If you find a bug or have a feature request, please open a GitHub Issue.
+Found a bug or have a feature request? Open a GitHub Issue.
 
 ## License
 
