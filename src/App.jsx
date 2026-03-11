@@ -125,13 +125,12 @@ function App() {
       setLoadingProgress(80);
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      const analysisResult = analyzeStatuses(
-        data.statuses,
-        data.account,
+      const analysisResult = analyzeStatuses(data.statuses, {
+        account: data.account,
         lang,
-        targetYear,
-        tz
-      );
+        year: targetYear,
+        timezoneMode: tz,
+      });
       if (!analysisResult) {
         throw new Error(
           lang === 'zh'
