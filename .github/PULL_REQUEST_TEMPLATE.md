@@ -1,31 +1,31 @@
 ## Summary
 
-<!-- 请用一两句话概括这个 PR 做了什么 -->
+<!-- Briefly describe what this PR does -->
 
 ## Changes
 
-<!-- 列出具体的更改 -->
+<!-- List specific changes -->
 
-- <!-- 更改 1 -->
-- <!-- 更改 2 -->
-- <!-- 更改 3 -->
+- <!-- Change 1 -->
+- <!-- Change 2 -->
+- <!-- Change 3 -->
 
 ## Test Plan
 
-<!-- 描述如何测试这些更改 -->
+<!-- Describe how to test these changes -->
 
-- [ ] <!-- 测试步骤 1 -->
-- [ ] <!-- 测试步骤 2 -->
-- [ ] <!-- 测试步骤 3 -->
+- [ ] <!-- Test step 1 -->
+- [ ] <!-- Test step 2 -->
+- [ ] <!-- Test step 3 -->
 
 ## Impact
 
-<!-- 描述这个更改的影响 -->
+<!-- Describe the impact of this change -->
 
-- 性能影响：
-- 破坏性变更：
-- 需要更新文档：
+- Performance impact:
+- Breaking changes:
+- Documentation updates:
 
-## Screenshots (可选)
+## Screenshots (optional)
 
-<!-- 如果有 UI 更改，添加截图 -->
+<!-- Add screenshots if there are UI changes -->
