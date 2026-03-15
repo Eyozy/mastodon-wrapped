@@ -99,35 +99,23 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
     try {
       const response = await fetchWithTimeout(url, options, options.signal);
 
-      // Handle rate limiting (HTTP 429)
+      // Rate limited - wait and retry if we have attempts left
       if (response.status === 429) {
         const retryAfter = response.headers.get('Retry-After');
-        let waitTime;
+        const waitTime = retryAfter
+          ? parseInt(retryAfter) * 1000
+          : Math.pow(2, attempt) * 1000;
 
-        if (retryAfter) {
-          // Use server-provided delay
-          waitTime = parseInt(retryAfter) * 1000;
-        } else {
-          // Exponential backoff: 1s, 2s, 4s
-          waitTime = Math.pow(2, attempt) * 1000;
-        }
-
-        // If we have retries left, wait and try again
         if (attempt < maxRetries - 1) {
           await new Promise((resolve) => setTimeout(resolve, waitTime));
           continue;
-        } else {
-          throw new Error(
-            'Too many requests. Please wait a moment and try again.'
-          );
         }
+        throw new Error('Too many requests. Please wait a moment and try again.');
       }
 
-      // For other errors, don't retry
+      // Non-ok response - throw for non-404, return for 404
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('User not found');
-        }
+        if (response.status === 404) throw new Error('User not found');
         throw new Error(`API Error: ${response.status}`);
       }
 
@@ -140,12 +128,12 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
         throw error;
       }
 
-      // If this is the last attempt, throw the error
+      // Last attempt - propagate error
       if (attempt === maxRetries - 1) {
         throw error;
       }
 
-      // For network errors, wait and retry
+      // Network error - wait and retry
       const waitTime = Math.pow(2, attempt) * 1000;
       await new Promise((resolve) => setTimeout(resolve, waitTime));
     }

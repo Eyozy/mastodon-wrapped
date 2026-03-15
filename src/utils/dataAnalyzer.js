@@ -213,7 +213,11 @@ function computeTimeStats(parsedStatuses, lang) {
   const months = names.map((name, i) => ({ name, month: i + 1, count: 0 }));
   const hours = Array(24)
     .fill(0)
-    .map((_, i) => ({ hour: i, label: `${i}:00`, count: 0 }));
+    .map((_, i) => ({
+      hour: i,
+      label: `${String(i).padStart(2, '0')}:00`,
+      count: 0,
+    }));
   const dayCounts = {};
   const hourCounts = { night: 0, morning: 0, work: 0 };
 

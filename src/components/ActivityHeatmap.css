@@ -1,6 +1,17 @@
 /* ActivityHeatmap.css - Calendar Heatmap Styles */
 
 :root {
+  --heatmap-meta-space: 0.375rem;
+  --heatmap-hover-space: 0.375rem;
+  --heatmap-card-space: 1.25rem;
+  --heatmap-card-bottom-space: 0.9375rem;
+  --heatmap-mobile-grid-offset-x: 15px;
+  --heatmap-mobile-grid-offset-y: 10px;
+  --heatmap-mobile-visible-height: 108;
+  --heatmap-weekday-offset-x: 2px;
+  --heatmap-weekday-offset-y: 13px;
+  --heatmap-legend-space: 0.5rem;
+  --heatmap-grid-bottom-space: 30px;
   --heatmap-color-4: #1d4ed8;
   --heatmap-stroke-4: #1e40af;
   --heatmap-color-3: #2563eb;
@@ -15,7 +26,7 @@
 
 .activity-heatmap-container {
   width: 100%;
-  padding: 1rem;
+  padding: var(--heatmap-card-space) 1rem var(--heatmap-card-bottom-space);
   background: transparent;
   border-radius: 12px;
   /* Support horizontal scrolling on small screens */
@@ -23,12 +34,18 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.heatmap-grid-frame {
+  width: 100%;
+}
+
 /* Heatmap Main Styles */
 .react-calendar-heatmap {
+  display: block;
   width: 100%;
   /* Ensure a minimum width so squares don't get squished too small */
   min-width: 600px;
   overflow: visible !important;
+  margin-bottom: calc(-1 * var(--heatmap-grid-bottom-space));
 }
 
 .react-calendar-heatmap text {
@@ -37,9 +54,11 @@
   font-weight: 500;
 }
 
-/* Weekday labels spacing */
 .react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
-  transform: translate(0px, 15px);
+  transform: translate(
+    var(--heatmap-weekday-offset-x),
+    var(--heatmap-weekday-offset-y)
+  );
   font-size: 9px;
 }
 
@@ -53,12 +72,11 @@
 .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
   text-anchor: start !important;
   dominant-baseline: auto !important;
+  transform: translateY(-6px);
 }
 
-/* Ensure proper spacing for the heatmap container */
-.react-calendar-heatmap svg {
+svg.react-calendar-heatmap {
   overflow: visible;
-  padding-top: 20px;
 }
 
 /* Heatmap Rectangles */
@@ -121,16 +139,25 @@
   z-index: 10;
 }
 
-/* Legend Styles */
+.heatmap-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--heatmap-meta-space);
+  padding-top: var(--heatmap-meta-space);
+}
+
+.heatmap-hover-text {
+  min-height: 24px;
+  padding: var(--heatmap-hover-space) 0;
+}
+
 .heatmap-legend {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem;
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
+  padding-top: var(--heatmap-legend-space);
   border-top: 1px solid rgba(226, 232, 240, 0.4);
-  /* Ensure legend stays sticky or visible if needed, but simple flex is fine */
   position: sticky;
   left: 0;
 }
@@ -185,27 +212,38 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .activity-heatmap-container {
-    padding: 0.5rem;
-    overflow-x: visible; /* Remove scrollbar */
+    padding: 0.375rem;
+    overflow: hidden;
   }
 
-  /* Reduce min-width to fit tablet screens without scrolling */
-  .react-calendar-heatmap {
-    min-width: 100%; /* Adapt to container width */
+  .heatmap-grid-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 716 / var(--heatmap-mobile-visible-height);
+    overflow: hidden;
+  }
+
+  .heatmap-grid-frame .react-calendar-heatmap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    min-width: 100%;
+    margin: 0;
   }
 
   /* Hide both weekday and month labels on tablets and below */
-  .react-calendar-heatmap .react-calendar-heatmap-weekday-labels text,
-  .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
-    display: none;
+  .react-calendar-heatmap .react-calendar-heatmap-weekday-labels,
+  .react-calendar-heatmap .react-calendar-heatmap-month-labels {
+    display: none !important;
   }
 
-  /* Reduce SVG padding since labels are hidden */
-  .react-calendar-heatmap svg {
-    padding-top: 10px;
+  .react-calendar-heatmap .react-calendar-heatmap-all-weeks {
+    transform: translate(
+      var(--heatmap-mobile-grid-offset-x),
+      var(--heatmap-mobile-grid-offset-y)
+    ) !important;
   }
 
-  /* Adjust text sizes */
   .react-calendar-heatmap text {
     font-size: 9px;
   }
@@ -218,44 +256,14 @@
     width: 12px;
     height: 12px;
   }
-}
 
-/* Hide hover text on mobile */
-@media (max-width: 768px) {
-  .heatmap-hover-text {
+  .heatmap-legend {
+    display: none;
+  }
+
+  .heatmap-meta {
     display: none !important;
   }
-}
-
-/* Download mode styles - force display labels and ensure proper spacing */
-.download-mode
-  .react-calendar-heatmap
-  .react-calendar-heatmap-weekday-labels
-  text,
-.download-mode
-  .react-calendar-heatmap
-  .react-calendar-heatmap-month-labels
-  text {
-  display: block !important;
-}
-
-/* Download mode: significantly increase spacing between heatmap labels and squares */
-.download-mode .react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
-  transform: translate(
-    -20px,
-    15px
-  ) !important; /* Move weekday labels left by 20px */
-}
-
-.download-mode
-  .react-calendar-heatmap
-  .react-calendar-heatmap-month-labels
-  text {
-  transform: translateY(-12px) !important; /* Move month labels up slightly */
-}
-
-.download-mode .react-calendar-heatmap svg {
-  padding-top: 15px !important; /* Balanced top space */
 }
 
 /* Download mode: hide hover text and collapse space */
@@ -265,27 +273,48 @@
   margin: 0 !important;
 }
 
-.download-mode .heatmap-legend {
-  margin-top: 8px !important;
-  padding-top: 8px !important;
+.force-desktop.download-mode .activity-heatmap-container {
+  padding: var(--heatmap-card-space) 1rem var(--heatmap-card-bottom-space) !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+
+.force-desktop.download-mode .heatmap-grid-frame {
+  position: static !important;
+  width: 100% !important;
+  aspect-ratio: auto !important;
+  overflow: visible !important;
+}
+
+.force-desktop.download-mode .heatmap-grid-frame .react-calendar-heatmap {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  min-width: 600px !important;
+  margin: 0 0 calc(-1 * var(--heatmap-grid-bottom-space)) !important;
+}
+
+.force-desktop.download-mode
+  .react-calendar-heatmap
+  .react-calendar-heatmap-weekday-labels,
+.force-desktop.download-mode
+  .react-calendar-heatmap
+  .react-calendar-heatmap-month-labels,
+.force-desktop.download-mode .heatmap-meta {
+  display: block !important;
+}
+
+.force-desktop.download-mode .heatmap-legend {
+  display: flex !important;
+}
+
+.force-desktop.download-mode
+  .react-calendar-heatmap
+  .react-calendar-heatmap-all-weeks {
+  transform: none !important;
 }
 
 @media (max-width: 480px) {
-  .activity-heatmap-container {
-    padding: 0.25rem;
-  }
-
-  /* Hide both month and weekday labels on very small screens */
-  .react-calendar-heatmap .react-calendar-heatmap-weekday-labels text,
-  .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
-    display: none;
-  }
-
-  /* Reduce SVG padding */
-  .react-calendar-heatmap svg {
-    padding-top: 10px;
-  }
-
   .legend-label {
     font-size: 10px;
   }
@@ -295,8 +324,7 @@
     height: 10px;
   }
 
-  /* Smaller minimum width for tiny screens */
-  .react-calendar-heatmap {
+  .heatmap-grid-frame .react-calendar-heatmap {
     min-width: 320px;
   }
 }
