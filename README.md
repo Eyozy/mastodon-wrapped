@@ -1,11 +1,6 @@
 # Mastodon Wrapped
 
-<p align="center">
-  <img src="./public/og.jpg" alt="Mastodon Wrapped Banner" width="800">
-</p>
-
-<p align="center">Generate your personalized Mastodon year-end wrapped report. Like Spotify Wrapped, but for the decentralized social network!
-</p>
+Generate your personalized Mastodon year-end wrapped report. Like Spotify Wrapped, but for the decentralized social network.
 
 ## Features
 
