@@ -99,7 +99,7 @@ export default defineConfig({
           // Charts - lazy loaded
           'charts-vendor': ['recharts', 'react-calendar-heatmap'],
           // UI utilities
-          'ui-vendor': ['clsx', 'tailwind-merge', 'class-variance-authority'],
+          'ui-vendor': ['clsx', 'tailwind-merge'],
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {

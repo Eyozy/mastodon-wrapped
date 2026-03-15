@@ -1,14 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { formatNumber, emojifyDisplayName } from '../utils/dataAnalyzer';
-import {
-  LineChart,
-  Line,
-  Tooltip,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-} from 'recharts';
+import { LineChart, Line, Tooltip, ResponsiveContainer } from 'recharts';
 import {
   ArrowLeftIcon,
   DownloadIcon,
@@ -28,6 +21,27 @@ import {
   PieChartIcon,
 } from './ui/icons';
 import ActivityHeatmap from './ActivityHeatmap';
+
+const TOOLTIP_CONTENT_STYLE = {
+  backgroundColor: 'rgba(255,255,255,0.9)',
+  borderRadius: '8px',
+  border: 'none',
+  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+};
+
+// Chart color tokens
+const CHART_COLORS = {
+  purple: CHART_COLORS.purple,
+  orange: CHART_COLORS.orange,
+  blue: CHART_COLORS.blue,
+  sky: CHART_COLORS.sky,
+  pink: CHART_COLORS.pink,
+  green: CHART_COLORS.green,
+  amber: CHART_COLORS.amber,
+  cyan: CHART_COLORS.cyan,
+  rose: CHART_COLORS.rose,
+  slate: CHART_COLORS.slate,
+};
 
 export default function StatsReport({
   stats,
@@ -201,14 +215,11 @@ export default function StatsReport({
           {/* 2. Chronotype (Night Owl etc) - Requested specifically */}
           <div className="grid-card">
             <div className="card-icon">
-              <TimeIcon style={{ color: '#8b5cf6' }} />
+              <TimeIcon style={{ color: CHART_COLORS.purple }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('chronotype_label')}</span>
-              <span
-                className="card-value"
-                style={{ color: '#8b5cf6', fontSize: '1rem' }}
-              >
+              <span className="card-value" style={{ color: CHART_COLORS.purple }}>
                 {stats.chronotype.name}
               </span>
             </div>
@@ -217,14 +228,11 @@ export default function StatsReport({
           {/* 3. Persona */}
           <div className="grid-card">
             <div className="card-icon">
-              <UserStarIcon style={{ color: '#f97316' }} />
+              <UserStarIcon style={{ color: CHART_COLORS.orange }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('persona_label')}</span>
-              <span
-                className="card-value"
-                style={{ color: '#f97316', fontSize: '1rem' }}
-              >
+              <span className="card-value" style={{ color: CHART_COLORS.orange }}>
                 {stats.persona.name}
               </span>
             </div>
@@ -233,11 +241,11 @@ export default function StatsReport({
           {/* 4. Total Posts */}
           <div className="grid-card">
             <div className="card-icon">
-              <QuillPenIcon style={{ color: '#3b82f6' }} />
+              <QuillPenIcon style={{ color: CHART_COLORS.blue }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('total_posts')}</span>
-              <span className="card-value" style={{ color: '#3b82f6' }}>
+              <span className="card-value" style={{ color: CHART_COLORS.blue }}>
                 {formatNumber(stats.totalPosts)}
               </span>
             </div>
@@ -246,11 +254,11 @@ export default function StatsReport({
           {/* 5. Originals */}
           <div className="grid-card">
             <div className="card-icon">
-              <EditIcon style={{ color: '#0ea5e9' }} />
+              <EditIcon style={{ color: CHART_COLORS.sky }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('original_posts')}</span>
-              <span className="card-value" style={{ color: '#0ea5e9' }}>
+              <span className="card-value" style={{ color: CHART_COLORS.sky }}>
                 {formatNumber(stats.originalPosts)}
               </span>
             </div>
@@ -259,11 +267,11 @@ export default function StatsReport({
           {/* 6. Likes Received */}
           <div className="grid-card">
             <div className="card-icon">
-              <HeartIcon style={{ color: '#ec4899' }} />
+              <HeartIcon style={{ color: CHART_COLORS.pink }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('favorites_received')}</span>
-              <span className="card-value" style={{ color: '#ec4899' }}>
+              <span className="card-value" style={{ color: CHART_COLORS.pink }}>
                 {formatNumber(stats.totalFavorites)}
               </span>
             </div>
@@ -272,11 +280,11 @@ export default function StatsReport({
           {/* 7. Boosts (Reblogs) */}
           <div className="grid-card">
             <div className="card-icon">
-              <RepeatIcon style={{ color: '#10b981' }} />
+              <RepeatIcon style={{ color: CHART_COLORS.green }} />
             </div>
             <div className="card-content">
-              <span className="card-label">{t('reblogs_received')}</span>
-              <span className="card-value" style={{ color: '#10b981' }}>
+              <span className="card-label">{t('reblogs_sent')}</span>
+              <span className="card-value" style={{ color: CHART_COLORS.green }}>
                 {formatNumber(stats.reblogs)}
               </span>
             </div>
@@ -285,11 +293,11 @@ export default function StatsReport({
           {/* 8. Longest Streak */}
           <div className="grid-card">
             <div className="card-icon">
-              <FireIcon style={{ color: '#f59e0b' }} />
+              <FireIcon style={{ color: CHART_COLORS.amber }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('longest_streak')}</span>
-              <span className="card-value" style={{ color: '#f59e0b' }}>
+              <span className="card-value" style={{ color: CHART_COLORS.amber }}>
                 {stats.longestStreak} {t('days')}
               </span>
             </div>
@@ -298,11 +306,11 @@ export default function StatsReport({
           {/* 9. Average Likes per Post */}
           <div className="grid-card">
             <div className="card-icon">
-              <StarSmileIcon style={{ color: '#f59e0b' }} />
+              <StarSmileIcon style={{ color: CHART_COLORS.amber }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('avg_favorites')}</span>
-              <span className="card-value" style={{ color: '#f59e0b' }}>
+              <span className="card-value" style={{ color: CHART_COLORS.amber }}>
                 {stats.avgFavoritesPerPost || 0}
               </span>
             </div>
@@ -311,11 +319,11 @@ export default function StatsReport({
           {/* 10. Most Active Month */}
           <div className="grid-card">
             <div className="card-icon">
-              <CalendarIcon style={{ color: '#8b5cf6' }} />
+              <CalendarIcon style={{ color: CHART_COLORS.purple }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('most_active_month')}</span>
-              <span className="card-value" style={{ color: '#8b5cf6' }}>
+              <span className="card-value" style={{ color: CHART_COLORS.purple }}>
                 {stats.mostActiveMonth?.name || '-'}
               </span>
             </div>
@@ -324,11 +332,11 @@ export default function StatsReport({
           {/* 11. Most Active Day */}
           <div className="grid-card">
             <div className="card-icon">
-              <CalendarCheckIcon style={{ color: '#06b6d4' }} />
+              <CalendarCheckIcon style={{ color: CHART_COLORS.cyan }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('most_active_day')}</span>
-              <span className="card-value" style={{ color: '#06b6d4' }}>
+              <span className="card-value" style={{ color: CHART_COLORS.cyan }}>
                 {stats.mostActiveDay?.date || '-'}
               </span>
             </div>
@@ -337,21 +345,19 @@ export default function StatsReport({
           {/* 12. Busiest Hour */}
           <div className="grid-card">
             <div className="card-icon">
-              <TimeIcon style={{ color: '#f43f5e' }} />
+              <TimeIcon style={{ color: CHART_COLORS.rose }} />
             </div>
             <div className="card-content">
               <span className="card-label">{t('busiest_hour')}</span>
-              <span className="card-value" style={{ color: '#f43f5e' }}>
-                {stats.busiestHour?.hour !== undefined
-                  ? `${stats.busiestHour.hour}:00`
-                  : '-'}
+              <span className="card-value" style={{ color: CHART_COLORS.rose }}>
+                {stats.busiestHour ? stats.busiestHour.label : '-'}
               </span>
             </div>
           </div>
         </div>
       </motion.section>
 
-      {/* Charts Row: Trend, Activity, Distribution (3 Columns) */}
+      {/* Charts Row: Trend and Activity */}
       <motion.section
         className="charts-summary-section"
         variants={itemVariants}
@@ -378,19 +384,14 @@ export default function StatsReport({
                   type="monotone"
                   dataKey="count"
                   stroke="#8b5cf6"
-                  strokeWidth={3}
+                  strokeWidth={1.5}
                   dot={false}
                   isAnimationActive={!isExport} // Disable animation for export
                 />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(255,255,255,0.9)',
-                    borderRadius: '8px',
-                    border: 'none',
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-                  }}
-                  labelStyle={{ color: '#64748b', marginBottom: '2px' }}
-                  itemStyle={{ color: '#8b5cf6', fontWeight: 'bold' }}
+                  contentStyle={TOOLTIP_CONTENT_STYLE}
+                  labelStyle={{ color: CHART_COLORS.slate, marginBottom: '2px' }}
+                  itemStyle={{ color: CHART_COLORS.purple, fontWeight: 'bold' }}
                   labelFormatter={(value, payload) => {
                     if (payload && payload[0]) {
                       return payload[0].payload.name;
@@ -411,55 +412,42 @@ export default function StatsReport({
               <span className="header-title">{t('activity_rhythm')}</span>
             </div>
             <div className="header-stat">
-              {stats.busiestHour ? `${stats.busiestHour.label}` : '-'}{' '}
+              {stats.busiestHour ? stats.busiestHour.label : '-'}{' '}
               <span className="stat-unit">Peak</span>
             </div>
           </div>
           <div className="trend-mini-chart">
             <ResponsiveContainer width="100%" height={100}>
-              <AreaChart
+              <LineChart
                 data={stats.hourlyPosts}
-                margin={{ left: 0, right: 0, top: 5, bottom: 0 }}
+                margin={{ left: 5, right: 5, top: 5, bottom: 5 }}
               >
-                <defs>
-                  {/* Unique ID for export mode to prevent collisions with visible chart */}
-                  <linearGradient
-                    id={isExport ? 'colorActivity_export' : 'colorActivity'}
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <Area
+                <Line
                   type="monotone"
                   dataKey="count"
                   stroke="#0ea5e9"
-                  fillOpacity={1}
-                  fill={`url(#${
-                    isExport ? 'colorActivity_export' : 'colorActivity'
-                  })`}
+                  strokeWidth={1.5}
+                  dot={false}
                   isAnimationActive={!isExport} // Disable animation for export
                 />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(255,255,255,0.9)',
-                    borderRadius: '8px',
-                    border: 'none',
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                  contentStyle={TOOLTIP_CONTENT_STYLE}
+                  labelStyle={{ color: CHART_COLORS.slate }}
+                  itemStyle={{ color: CHART_COLORS.sky, fontWeight: 'bold' }}
+                  labelFormatter={(value, payload) => {
+                    if (payload && payload[0]) {
+                      return payload[0].payload.label;
+                    }
+                    return value;
                   }}
-                  labelStyle={{ color: '#64748b' }}
-                  itemStyle={{ color: '#0ea5e9', fontWeight: 'bold' }}
                 />
-              </AreaChart>
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
+      </motion.section>
 
-        {/* 3. Content Distribution */}
+      <motion.section className="distribution-section" variants={itemVariants}>
         <div className="chart-wrapper">
           <div className="chart-header-compact">
             <div className="header-icon-title">
@@ -499,12 +487,15 @@ export default function StatsReport({
                       const pct = ((item.value / total) * 100).toFixed(0);
                       return (
                         <div key={idx} className="legend-item">
-                          <span
-                            className="legend-dot"
-                            style={{ backgroundColor: item.color }}
-                          ></span>
-                          <span className="legend-text">
-                            {item.name}: {item.value} ({pct}%)
+                          <span className="legend-meta">
+                            <span
+                              className="legend-dot"
+                              style={{ backgroundColor: item.color }}
+                            ></span>
+                            <span className="legend-text">{item.name}</span>
+                          </span>
+                          <span className="legend-value">
+                            {item.value} / {pct}%
                           </span>
                         </div>
                       );

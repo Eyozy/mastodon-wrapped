@@ -132,8 +132,6 @@ export default function ActivityHeatmap({ activityCalendar, year, t }) {
         fill: config.fill,
         stroke: config.stroke,
         strokeWidth: 1,
-        rx: 2,
-        ry: 2,
         outline: 'none',
       },
     });
@@ -148,66 +146,70 @@ export default function ActivityHeatmap({ activityCalendar, year, t }) {
 
   return (
     <div className="activity-heatmap-container">
-      <CalendarHeatmap
-        startDate={startDate}
-        endDate={endDate}
-        values={heatmapData}
-        classForValue={getClassForValue}
-        tooltipDataAttrs={getTooltipDataAttrs}
-        showWeekdayLabels={true}
-        showMonthLabels={true}
-        gutterSize={3}
-        onMouseOver={handleMouseOver}
-        onMouseLeave={handleMouseLeave}
-        transformDayElement={transformDayElement}
-      />
-
-      {/* Interactive data display - replaces native Tooltip - Fixed height to prevent flicker */}
-      <div
-        className="heatmap-hover-text"
-        style={{
-          height: '24px',
-          textAlign: 'center',
-          marginTop: '8px',
-          marginBottom: '0px',
-          fontSize: '13px',
-          fontWeight: '500',
-          color: '#475569',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {hoveredData && (hoveredData.dateStr || hoveredData.date) ? (
-          <span>
-            {hoveredData.dateStr || hoveredData.date}:{' '}
-            <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>
-              {hoveredData.count}
-            </span>{' '}
-            {t ? t('toots') : '条嘟文'}
-          </span>
-        ) : (
-          <span style={{ color: '#94a3b8', fontSize: '12px' }}>
-            {t ? t('heatmap_hover') : 'Hover to view details'}
-          </span>
-        )}
+      <div className="heatmap-grid-frame">
+        <CalendarHeatmap
+          startDate={startDate}
+          endDate={endDate}
+          values={heatmapData}
+          classForValue={getClassForValue}
+          tooltipDataAttrs={getTooltipDataAttrs}
+          showWeekdayLabels={true}
+          showMonthLabels={true}
+          gutterSize={3}
+          onMouseOver={handleMouseOver}
+          onMouseLeave={handleMouseLeave}
+          transformDayElement={transformDayElement}
+        />
       </div>
 
-      {/* Legend - uses unified color config */}
-      <div className="heatmap-legend">
-        <span className="legend-label">{t ? t('legend_less') : 'Less'}</span>
-        <div className="legend-scale">
-          {/* Render legend boxes in reverse order (empty to full) */}
-          {[...HEATMAP_LEVELS].reverse().map((level) => (
-            <div
-              key={level.className}
-              className="legend-box"
-              style={{ backgroundColor: level.fill, borderColor: level.stroke }}
-              title={level.title}
-            />
-          ))}
+      <div className="heatmap-meta">
+        {/* Interactive data display - replaces native Tooltip - Fixed height to prevent flicker */}
+        <div
+          className="heatmap-hover-text"
+          style={{
+            textAlign: 'center',
+            fontSize: '13px',
+            fontWeight: '500',
+            color: '#475569',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {hoveredData && (hoveredData.dateStr || hoveredData.date) ? (
+            <span>
+              {hoveredData.dateStr || hoveredData.date}:{' '}
+              <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>
+                {hoveredData.count}
+              </span>{' '}
+              {t ? t('toots') : '条嘟文'}
+            </span>
+          ) : (
+            <span style={{ color: '#94a3b8', fontSize: '12px' }}>
+              {t ? t('heatmap_hover') : 'Hover to view details'}
+            </span>
+          )}
         </div>
-        <span className="legend-label">{t ? t('legend_more') : 'More'}</span>
+
+        {/* Legend - uses unified color config */}
+        <div className="heatmap-legend">
+          <span className="legend-label">{t ? t('legend_less') : 'Less'}</span>
+          <div className="legend-scale">
+            {/* Render legend boxes in reverse order (empty to full) */}
+            {[...HEATMAP_LEVELS].reverse().map((level) => (
+              <div
+                key={level.className}
+                className="legend-box"
+                style={{
+                  backgroundColor: level.fill,
+                  borderColor: level.stroke,
+                }}
+                title={level.title}
+              />
+            ))}
+          </div>
+          <span className="legend-label">{t ? t('legend_more') : 'More'}</span>
+        </div>
       </div>
     </div>
   );
