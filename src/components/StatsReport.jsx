@@ -31,16 +31,16 @@ const TOOLTIP_CONTENT_STYLE = {
 
 // Chart color tokens
 const CHART_COLORS = {
-  purple: CHART_COLORS.purple,
-  orange: CHART_COLORS.orange,
-  blue: CHART_COLORS.blue,
-  sky: CHART_COLORS.sky,
-  pink: CHART_COLORS.pink,
-  green: CHART_COLORS.green,
-  amber: CHART_COLORS.amber,
-  cyan: CHART_COLORS.cyan,
-  rose: CHART_COLORS.rose,
-  slate: CHART_COLORS.slate,
+  purple: '#a855f7',
+  orange: '#f97316',
+  blue: '#3b82f6',
+  sky: '#0ea5e9',
+  pink: '#ec4899',
+  green: '#22c55e',
+  amber: '#f59e0b',
+  cyan: '#06b6d4',
+  rose: '#f43f5e',
+  slate: '#64748b',
 };
 
 export default function StatsReport({
